@@ -1,6 +1,12 @@
 # Verification evidence
 
-## 2026-10-04 Java implementation
+Current application baseline: `a5834c7`, Java 21 with native Jev Identify and
+provisional Gemini generation roles. Main and its fresh Git clone passed 58 tests;
+all seven local checkpoint branches passed their checks. Final branch mapping,
+clone and dashboard evidence appear at the end. Earlier sections preserve
+explicitly historical runs and do not describe the current model lineup or budget.
+
+## Initial Java implementation evidence (historical)
 
 The workspace began empty without a Git remote. The referenced
 `../.tessl/RULES.md` was absent; installed coding-policy rules were read directly.
@@ -135,9 +141,10 @@ after that exported snapshot.
 Its documented `./jclaw preview plain` launcher also passed, exit 0, with the
 fixture-only label and no provider calls or actions.
 
-Final draft/Judge transports and exact comparison agreement remain deferred.
-Hosted export and per-HTTP retry timings are absent. Seven feature-removal
-checkpoint branches remain pending. No remote, PR or CI run exists.
+At this reconciliation checkpoint, final draft/Judge transports and exact
+comparison agreement were deferred. Hosted export and per-HTTP retry timings
+were absent, and feature-removal branches were still pending. Completed branch
+and clone evidence is recorded below. No remote, PR or CI run exists.
 
 ## Complete-main acceptance before checkpoint derivation
 
@@ -167,7 +174,8 @@ refinement/skill proof or live send is claimed.
 
 The projection fixture checks every removal, unchanged history and fail-before-
 write validation. ADR 0003 records the mechanically derived branch strategy.
-Local branch builds and the fresh Git clone rehearsal are the next gates.
+Local branch builds and the fresh Git clone rehearsal were the next gates;
+their completed evidence is recorded below.
 
 After adding the explicit literal-wording requirement to both Draft and Judge,
 the same approved opening/Hold smoke passed again, exit 0. Trace ID
@@ -178,3 +186,58 @@ separately. It still volunteered future assistance and mentioned deliverables;
 inspect the actual candidate rather than assuming perfect grounded wording.
 Human held it, with zero sends, zero history saves and no sent-history file.
 Ignored evidence: `state/jev-literal-hold.txt` and its trace file.
+
+## Validated checkpoint branches and fresh Git clone
+
+`bash scripts/derive-rounds.sh --offline` completed successfully, exit 0. It
+validated complete main, then projected every branch from
+`a5834c77ee20396947dc9b79e08c3badc835a3da`. Each branch passed Java compilation,
+Spotless, ShellCheck/script fixtures, native workflow/capability tests, installDist
+and launcher help. All seven commits passed the staged gitleaks hook. There were
+zero test failures or errors. Earlier branches retain common wire/helper tests,
+remove the two Human-session test source files below round 6, and explicitly skip
+tests for unavailable rounds rather than implying those features ran.
+
+| Branch | Commit | Passed tests | Explicit skips |
+|---|---|---:|---:|
+| `round/01-chatbot` | `7a968c0` | 43 | 5 |
+| `round/02-tools` | `4622aaa` | 44 | 4 |
+| `round/03-memory` | `72694c7` | 45 | 3 |
+| `round/04-skills` | `4ba68f4` | 47 | 1 |
+| `round/05-workflow` | `33825fb` | 48 | 0 |
+| `round/06-guardrails` | `92fe272` | 58 | 0 |
+| `round/07-observability` | `7f1755c` | 58 | 0 |
+
+Ignored build/help logs and copied JUnit XML are in `state/round-validation/`.
+Temporary worktrees were removed; the original checkout stayed clean on main.
+Later mode names fail before provider/state initialization. Round 5 received a
+real native reviewed proposal and could not send when asked.
+
+A genuine temporary Git clone at `/private/tmp/jclaw-fresh-clone.w4NeT4` fetched
+the pinned source, applied the TUI patch and rebuilt both MCP jars. With no copied
+build outputs or shared cache, `:app:check :app:installDist :mocks:mcpJars
+--console=plain --offline` passed all 58 tests with zero skips/failures/errors.
+All 19 Gradle tasks executed. `./jclaw preview plain` passed with API keys removed
+from the process and empty example credentials. No provider calls or actions ran.
+
+The current fixture dashboard rendered at 160×40 with
+`TERM=xterm-256color JCLAW_ROOT="$PWD" app/build/install/app/bin/app preview`.
+F1–F4 worked; unsent `hold-preview` survived view switches and resize to 120×32;
+Ctrl+C exited 0 and restored the terminal. This is UI fixture evidence, not live
+framework/model evidence. The automation PTY's default `TERM=dumb` initially
+produced a zero-size DumbTerminal and no screen, exiting 130 when interrupted.
+A native JLine probe with the ANSI setting returned PosixSysTerminal, 160×40.
+The existing dependency contains its native provider; no dependency was added.
+Use the documented plain fallback for dumb or redirected terminals.
+
+Inside that clone only, a prepared receipt/history fixture was generated through
+the real Java `Delivery` and `SentHistory` code. Its bytes remained unchanged
+through chatbot, memory and guardrails branch checkouts, credential-free launcher
+previews, and return to main. It is labelled prepared data and proves preservation;
+it is not live send evidence. The original checkout has no sent-history file.
+
+Final comparison-model agreement and subscription transports remain deferred by
+the user. Hosted export, per-HTTP retry timings and expanded live refinement/skill
+rehearsals are not implemented or not approved. Actual candidate wording still
+needs human inspection. There is no repository remote, PR or CI run; these local
+branches and checks are not a publication or paired benchmark.

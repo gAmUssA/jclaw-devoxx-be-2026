@@ -1,0 +1,96 @@
+--- a/tui/src/main/kotlin/com/jbaruch/jclaw/tui/JclawTui.kt
++++ b/tui/src/main/kotlin/com/jbaruch/jclaw/tui/JclawTui.kt
+@@ -41,6 +41,8 @@
+     private val reviewOnly: Boolean = false,
+     private val telemetryEnabled: Boolean = false,
+     private val providerLegend: String = "Gemini API  →  Claude Code  →  Codex CLI  |  organizer: mock",
++    private val criticLabel: String = "Codex",
++    private val pipelineSummary: String = "Identify the request; Claude drafts; Codex reviews",
+ ) : ToolkitApp() {
+     private val stageStates = HashMap<String, StageState>()
+     private val chatMessages = mutableListOf<ChatMessage>()
+@@ -158,7 +160,7 @@
+         receiptId = null
+         memoryStatus = "No new sent fact"
+         outcome = DemoOutcome.RUNNING
+-        outcomeDetail = "Identify the request; Claude drafts; Codex reviews"
++        outcomeDetail = pipelineSummary
+     }
+ 
+     fun outcome(state: DemoOutcome, detail: String = "") = onRenderThread {
+@@ -173,13 +175,17 @@
+         }
+         if (state == DemoOutcome.HELD) { human = "Held / change requested"; stageStates["human"] = StageState.DONE }
+         if (state == DemoOutcome.SENDING) { human = "Approved exact candidate"; stageStates["human"] = StageState.DONE }
+-        if (state == DemoOutcome.BLOCKED) stageStates["verify"] = StageState.FAILED
++        if (state == DemoOutcome.BLOCKED) {
++            stageStates.keys.toList().filter { stageStates[it] == StageState.ACTIVE }
++                .forEach { stageStates[it] = StageState.FAILED }
++            if (human == "Waiting for this exact candidate") human = "No candidate eligible for send"
++        }
+     }
+ 
+     fun candidate(value: CandidateView) = onRenderThread {
+         candidate = value
+         candidateList.selected(0)
+-        verdict = "Awaiting Codex"
++        verdict = "Awaiting $criticLabel"
+         feedback = ""
+         outcome = DemoOutcome.REVIEWING
+         outcomeDetail = "Review ${value.attempt}/$candidateLimit · current request and exact proposed message"
+@@ -199,7 +205,7 @@
+ 
+     fun toolCall(name: String, args: String) = onRenderThread {
+         toolCalls++
+-        if (name == "__read_file__") skillReads++
++        if (name == "__read_file__" || name == "readSkill") skillReads++
+         appendTrace(TraceMessage("↪ $name($args)", TraceKind.TOOL_CALL))
+     }
+ 
+@@ -319,6 +325,8 @@
+                 val label = when (item) {
+                     "readCalendar" -> "calendar"
+                     "jevDecision" -> "Jev"
++                    "identifyComparison" -> "Gemini"
++                    "verify" -> "judge"
+                     "assembleRequest" -> "identify"
+                     else -> item
+                 }
+@@ -346,7 +354,7 @@
+         ((turnFinishedNanos ?: System.nanoTime()) - it).coerceAtLeast(0) / 1_000_000_000
+     } ?: 0
+     private fun evidenceText(): String = buildString {
+-        appendLine("TURN $turn · ${elapsedSeconds()}s · agent tool calls $toolCalls · skill reads $skillReads")
++        appendLine("TURN $turn · ${elapsedSeconds()}s · tool calls $toolCalls · skill reads $skillReads")
+         if (decisionLines.isNotEmpty()) {
+             appendLine("DECISION MODEL")
+             decisionLines.forEach { appendLine(it) }
+@@ -359,8 +367,8 @@
+         receiptId?.let { appendLine("Receipt: $it") }
+         candidate?.candidateId?.let { appendLine("Candidate: $it") }
+         appendLine("Langfuse: ${if (telemetryEnabled) "enabled; verify backend arrival" else "not configured"}")
+-        appendLine("Trace coverage: agent/API calls and CLI node handoffs.")
+-        append("Human review is a graph node; mock send and final ingestion are outside the agent trace.")
++        appendLine("Trace coverage: native Agentic graph, API calls, application stages.")
++        append("Human verdict is a graph node; send/history have application evidence. No CLI or hosted export.")
+     }
+     private fun candidateText(): String = candidate?.let {
+         buildString {
+@@ -406,7 +414,7 @@
+         updateEvidence(((if (wide && selected == 0) rightWidth else width) - 4).coerceAtLeast(20))
+         fun chatPanel() = panel("CONVERSATION", chatList).rounded().borderColor(borderFor(CHAT_ID)).constraint(Constraint.fill())
+         fun candidatePanel() = panel("${candidate?.flavor ?: "CURRENT CANDIDATE"} / $verdict / F2", candidateList).rounded().borderColor(borderFor(CANDIDATE_ID)).constraint(Constraint.fill())
+-        fun tracePanel() = panel("LIVE TRACE / ${toolCalls} agent tool calls", traceList).rounded().borderColor(borderFor(TRACE_ID)).constraint(Constraint.fill())
++        fun tracePanel() = panel("LIVE TRACE / ${toolCalls} tool calls", traceList).rounded().borderColor(borderFor(TRACE_ID)).constraint(Constraint.fill())
+         fun evidencePanel() = panel("EVIDENCE", evidenceList).rounded().borderColor(borderFor(EVIDENCE_ID)).constraint(Constraint.fill())
+         val body: Element = when (selected) {
+             1 -> candidatePanel()
+@@ -421,7 +429,7 @@
+             else if (height >= 36) column(chatPanel(), candidatePanel()).constraint(Constraint.fill())
+             else if (candidate != null) candidatePanel() else chatPanel()
+         }
+-        val summary = "TURN $turn · ${elapsedSeconds()}s · agent tools $toolCalls · skill reads $skillReads · ${candidate?.let { "review ${it.attempt}/$candidateLimit" } ?: "ready"}"
++        val summary = "TURN $turn · ${elapsedSeconds()}s · tools $toolCalls · skill reads $skillReads · ${candidate?.let { "review ${it.attempt}/$candidateLimit" } ?: "ready"}"
+         val decisionLine = when (outcome) {
+             DemoOutcome.HUMAN -> if (width >= 105) "SEND = approve exact message   HOLD = no delivery   Or type a change for a fresh review"
+                 else "send: approve this message · hold: stop · or type a change"

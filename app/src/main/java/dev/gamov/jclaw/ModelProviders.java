@@ -2,9 +2,11 @@ package dev.gamov.jclaw;
 
 import static dev.langchain4j.model.chat.Capability.RESPONSE_FORMAT_JSON_SCHEMA;
 
+import com.google.genai.types.HttpOptions;
+import com.google.genai.types.HttpRetryOptions;
 import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import java.time.Duration;
 import java.util.List;
@@ -78,16 +80,31 @@ final class ModelProviders {
     return new Models(chat, draft.build(), review.build());
   }
 
-  static GoogleAiGeminiChatModel gemini(
-      String role, String name, String key, TraceEvidence evidence) {
+  static GoogleGenAiChatModel gemini(String role, String name, String key, TraceEvidence evidence) {
+    return gemini(role, name, key, evidence, null);
+  }
+
+  /** A local HTTP endpoint is supplied only by network-boundary tests. */
+  static GoogleGenAiChatModel gemini(
+      String role, String name, String key, TraceEvidence evidence, String endpoint) {
     evidence.event("PROVIDER", role + "=" + name + " (Gemini API)");
-    return GoogleAiGeminiChatModel.builder()
-        .apiKey(key)
-        .modelName(name)
-        .maxRetries(0)
-        .timeout(Duration.ofSeconds(90))
-        .listeners(List.of(evidence.modelListener(role, "Gemini API", name)))
-        .build();
+    var builder =
+        GoogleGenAiChatModel.builder()
+            .apiKey(key)
+            .modelName(name)
+            .returnThinking(false)
+            .sendThinking(false)
+            .maxRetries(0)
+            .timeout(Duration.ofSeconds(90))
+            .generateContentConfigCustomizer(
+                config ->
+                    config.httpOptions(
+                        HttpOptions.builder()
+                            .retryOptions(HttpRetryOptions.builder().attempts(1).build())
+                            .build()))
+            .listeners(List.of(evidence.modelListener(role, "Gemini API", name)));
+    if (endpoint != null) builder.apiEndpoint(endpoint);
+    return builder.build();
   }
 
   static String googleKey(Map<String, String> environment) {

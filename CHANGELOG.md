@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Preserve Gemini 3 function-call signatures with the native Google GenAI client
+  while keeping thought summaries and opaque signatures out of traces (ADR 0005).
+  Verify signed parallel and sequential calls through the actual MCP tools at a
+  local HTTP boundary.
 - Use Claude Opus 5.5 (`claude-opus-5-5`) for Draft/Refine and GPT-6 Astra
   (`gpt-6-astra`) for Judge through native LangChain4j API clients. Keep Jev
   Identify and Gemini chat/skills. Require the new API keys only for rounds 5–7,

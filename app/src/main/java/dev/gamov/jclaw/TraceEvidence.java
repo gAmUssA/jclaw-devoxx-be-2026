@@ -1,5 +1,6 @@
 package dev.gamov.jclaw;
 
+import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.listener.ChatModelErrorContext;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
@@ -181,7 +182,26 @@ public final class TraceEvidence {
         context.attributes().put(key, nanoTime.getAsLong());
         event(
             "MODEL_INPUT",
-            role + " / " + model + " (" + provider + ") " + context.chatRequest().messages());
+            role
+                + " / "
+                + model
+                + " ("
+                + provider
+                + ") "
+                + context.chatRequest().messages().stream()
+                    .map(
+                        message -> {
+                          // Keep opaque provider signatures in native history, out of UI and JSONL.
+                          if (message instanceof AiMessage ai) {
+                            return AiMessage.builder()
+                                .text(ai.text())
+                                .toolExecutionRequests(ai.toolExecutionRequests())
+                                .build()
+                                .toString();
+                          }
+                          return message.toString();
+                        })
+                    .toList());
       }
 
       @Override

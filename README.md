@@ -201,6 +201,12 @@ Anthropic/OpenAI clients through typed drafting, refinement and review, checking
 authentication, requested models, strict Judge schema and failure blocking.
 Test model responses are network boundary fixtures; they are not live provider evidence.
 
+Gemini uses native `GoogleGenAiChatModel` to preserve Gemini 3 tool-call signatures
+without displaying thought summaries. Local HTTP tests run signed parallel and
+sequential calls through the real MCP servers and check one-attempt failure
+handling. Signatures stay in native history and out of UI/JSONL evidence.
+See [ADR 0005](docs/adr/0005-preserve-gemini-tool-signatures.md).
+
 Actual model inputs, outputs, usage, durations, review attempts and application
 routes are written to ignored `state/trace.jsonl` with trace IDs, timestamps and
 parent-stage context. Native DecisionModel listeners record Jev state/questions,

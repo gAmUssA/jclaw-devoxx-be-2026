@@ -10,7 +10,7 @@ import com.jbaruch.jclaw.tui.StageState;
 import com.jbaruch.jclaw.tui.TraceKind;
 import com.jbaruch.jclaw.tui.TraceStageState;
 import dev.langchain4j.exception.LangChain4jException;
-import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
 import dev.langchain4j.model.typesafe.TypeSafeDecisionModel;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -457,7 +457,7 @@ public final class Main {
     // checkpoint:end decider
   }
 
-  private static GoogleAiGeminiChatModel model(
+  private static GoogleGenAiChatModel model(
       String role, String name, String key, TraceEvidence evidence) {
     return ModelProviders.gemini(role, name, key, evidence);
   }

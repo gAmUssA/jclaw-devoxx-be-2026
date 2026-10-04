@@ -96,7 +96,7 @@ public final class Contracts {
             ExcuseFlavor.FAMILY_OBLIGATION,
             ExcuseFlavor.CUSTOMER_ESCALATION);
     public static final String USER_CONTEXT =
-        "Baruch builds AI agents for a living. On the afternoon of this training he is "
+        "Viktor builds AI agents for a living. On the afternoon of this training he is "
             + "presenting a conference talk about building AI agents, live, in public.";
 
     private Scenario() {}

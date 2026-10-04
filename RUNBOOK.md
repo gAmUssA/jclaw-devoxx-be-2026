@@ -21,6 +21,9 @@ agreement or comparable CLI cost claim is implied.
 Use chatbot, tools, memory, skills, workflow, guardrails and observability in order.
 The LangChain4j assistant serves Viktor: chat, Draft and Judge use his name with
 the shared fictional training scenario. The pinned upstream reference uses Baruch.
+Use `/copy` to copy the full latest reply or candidate for rehearsal notes;
+`/copy reply` and `/copy candidate` select the content explicitly. The latter
+copies just the literal email, without hallway script, critique or panel borders.
 The shared opening request is in README.md. Calendar dates are fictional.
 Round 4 demonstrates catalog metadata then scoped skill body loading. Corporate
 language defaults to eleven and preserves facts, intent and commitments. A rewrite
@@ -46,6 +49,22 @@ Jev decisions include actual probabilities/margins and raw typed IO. Calendar
 and canonical assembly are application operations. Local native graph/API traces
 and human verdict nodes are implemented; hosted export and subscription CLI traces are
 absent. Prepared previews and test fixtures remain labelled.
+
+## Clipboard verification
+
+The native desktop clipboard access in `CopyCommands` is a platform-bound manual
+check; automated tests use a real in-memory JDK clipboard and verify complete
+Unicode text, paragraphs, candidate selection and availability errors. No test
+reads or changes the operator's system clipboard.
+
+Run `./jclaw preview`, enter `/copy reply`, and paste into a text editor. Expect
+exactly `UI FIXTURE DATA: prepared layout rehearsal; no providers or actions`.
+Then enter `/copy candidate`; paste should be exactly
+`Prepared message: I already build AI agents.`. Copying twice must give the same
+text. In a live round, `/copy reply` must include the complete response even when
+it scrolls beyond the visible panel. On a host without a desktop session, expect
+an availability message; the session remains usable. Clipboard access is on the
+application host, so SSH does not copy to the connecting client's clipboard.
 
 ## Receipt failure rehearsal
 

@@ -41,6 +41,8 @@ public final class Main {
       System.out.println(lineup.providerLegend());
       System.out.println(
           "Ctrl+C exits the dashboard; /quit exits plain mode. Send requires a reviewed candidate and explicit 'send'.");
+      System.out.println(
+          "/copy copies the latest reply or candidate; /copy reply and /copy candidate select explicitly.");
       return;
     }
     boolean preview = args.length > 0 && args[0].equals("preview");
@@ -52,6 +54,7 @@ public final class Main {
     var queue = new LinkedBlockingQueue<Turn>();
     var approvalCandidate = new AtomicReference<String>();
     var latestCandidate = new AtomicReference<String>();
+    var copy = new CopyCommands();
     final JclawTui dashboard;
     if (plain) dashboard = null;
     else {
@@ -133,6 +136,12 @@ public final class Main {
     var display =
         new SessionDisplay() {
           @Override
+          public void reply(String text) {
+            copy.reply(text);
+            chat(text);
+          }
+
+          @Override
           public void chat(String text) {
             if (dashboard == null) System.out.println(text);
             else dashboard.chat(text, ChatKind.JCLAW);
@@ -141,6 +150,7 @@ public final class Main {
           @Override
           public void event(String kind, String text) {
             evidence.event(kind, text);
+            if (kind.equals("TURN_STARTED")) copy.clearCandidate();
             if (dashboard == null) return;
             switch (kind) {
               case "TURN_STARTED" -> {
@@ -200,6 +210,7 @@ public final class Main {
               }
               case Workflow.Graph graph -> evidence.graph(graph);
               case Workflow.Candidate candidate -> {
+                copy.candidate(candidate.plan().messageToOrganizer());
                 latestCandidate.set(
                     Delivery.candidateId(
                         candidate.request().eventId(),
@@ -251,7 +262,17 @@ public final class Main {
         };
     if (dashboard == null)
       runSession(
-          preview, mode, lineup, root, input, queue, approvalCandidate, null, evidence, display);
+          preview,
+          mode,
+          lineup,
+          root,
+          input,
+          queue,
+          approvalCandidate,
+          null,
+          evidence,
+          display,
+          copy);
     else {
       var worker =
           new Thread(
@@ -267,7 +288,8 @@ public final class Main {
                       approvalCandidate,
                       dashboard,
                       evidence,
-                      display);
+                      display,
+                      copy);
                 } catch (InterruptedException interrupted) {
                   Thread.currentThread().interrupt();
                 } catch (IOException error) {
@@ -305,11 +327,13 @@ public final class Main {
       AtomicReference<String> approvalCandidate,
       JclawTui dashboard,
       TraceEvidence evidence,
-      SessionDisplay display)
+      SessionDisplay display,
+      CopyCommands copy)
       throws IOException, InterruptedException {
     if (preview) {
-      display.chat("UI FIXTURE DATA: prepared layout rehearsal; no providers or actions");
+      display.reply("UI FIXTURE DATA: prepared layout rehearsal; no providers or actions");
       if (dashboard != null) {
+        copy.candidate("Prepared message: I already build AI agents.");
         dashboard.candidate(
             new CandidateView(
                 "ALREADY_PROFICIENT",
@@ -323,6 +347,15 @@ public final class Main {
         dashboard.reviewResult(true, "UI fixture verdict; not a real critic decision");
       }
       display.state("PROPOSAL", "UI FIXTURE DATA only");
+      if (dashboard != null) {
+        while (true) {
+          var turn = queue.take();
+          if (turn.text().trim().equals("/quit")) return;
+          if (!copy.handle(turn.text(), display::chat))
+            display.chat(
+                "UI FIXTURE DATA: use /copy reply or /copy candidate to copy prepared text.");
+        }
+      }
       return;
     }
     var key = env("GOOGLE_API_KEY", System.getenv("GOOGLE_AI_API_KEY"));
@@ -358,6 +391,7 @@ public final class Main {
         var turn = dashboard == null ? new Turn(line, approvalCandidate.get()) : queue.take();
         if (turn.text() == null || turn.text().trim().equals("/quit")) break;
         if (turn.text().isBlank()) continue;
+        if (copy.handle(turn.text(), display::chat)) continue;
         try {
           session.submit(turn.text(), turn.candidateId());
         } catch (Delivery.Refused refused) {

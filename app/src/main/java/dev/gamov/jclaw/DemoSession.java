@@ -327,7 +327,7 @@ public final class DemoSession {
     stage("chat", Workflow.Phase.STARTED);
     try {
       var response = chat.reply(instruction);
-      display.chat(response);
+      display.reply(response);
       conversation.add(new TurnDecider.Message("user", instruction));
       conversation.add(new TurnDecider.Message("assistant", response));
       stage("chat", Workflow.Phase.COMPLETED);

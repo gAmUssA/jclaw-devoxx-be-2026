@@ -30,6 +30,13 @@ cp .env.example .env
 ```
 
 For stdout, use `./jclaw guardrails plain`; type `/quit` to stop.
+In the dashboard input, enter `/copy` to copy the latest full assistant reply or
+candidate message. `/copy reply` and `/copy candidate` select either explicitly.
+These local commands copy the original text, preserving paragraphs and offscreen
+content without panel borders. The candidate command copies only the literal email.
+Copy confirmation appears in chat and does not replace the text available to copy.
+Copying uses the JDK desktop clipboard; it requires a desktop session on the host
+running the application. Clipboard availability errors appear in chat.
 The dashboard needs an ANSI terminal at least 120 columns × 32 rows. Use `plain`
 with `TERM=dumb` or redirected input/output. Automated PTY rehearsals must supply
 `TERM=xterm-256color`; that setting is local to the command, not machine config.

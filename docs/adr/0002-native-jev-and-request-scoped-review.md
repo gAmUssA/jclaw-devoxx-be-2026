@@ -1,7 +1,7 @@
 # Native Jev decisions and a request-scoped Agentic review loop
 
 ## Status
-Accepted
+Superseded by 0004
 
 ## Date
 2026-10-04

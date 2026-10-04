@@ -37,7 +37,7 @@ public final class Main {
     if (Arrays.asList(args).contains("--help")) {
       System.out.println("Usage: ./jclaw [" + DemoMode.commands() + "|preview] [plain]");
       System.out.println(
-          "Java 21 / LangChain4j. Jev Identify; Gemini chat/draft/Judge for now. TYPESAFE_API_KEY and GOOGLE_API_KEY required.");
+          "Java 21 / LangChain4j. Jev Identify; Gemini chat; Claude Draft/Refine; OpenAI Judge. Rounds 5–7 require TYPESAFE_API_KEY, ANTHROPIC_API_KEY and OPENAI_API_KEY; chat requires GOOGLE_API_KEY.");
       System.out.println(lineup.providerLegend());
       System.out.println(
           "Ctrl+C exits the dashboard; /quit exits plain mode. Send requires a reviewed candidate and explicit 'send'.");
@@ -109,7 +109,7 @@ public final class Main {
               "Gemini",
               mode.round() >= 5
                   ? (lineup.decider().equals("jev") ? "Jev decides" : "Gemini comparison decides")
-                      + "; code identifies; Gemini drafts and judges"
+                      + "; Java assembles; Claude drafts; OpenAI judges"
                   : "Gemini chat with this round's available tools");
     }
     var evidence =
@@ -176,8 +176,8 @@ public final class Main {
                 if (dashboard != null) {
                   var provider =
                       switch (stage.name()) {
-                        case "draft", "refine" -> lineup.draft() + " Gemini API";
-                        case "verify" -> lineup.review() + " Gemini API";
+                        case "draft", "refine" -> lineup.draft() + " Anthropic API";
+                        case "verify" -> lineup.review() + " OpenAI API";
                         case "send" -> "organizer MCP / mock";
                         case "memory" -> "local confirmed-send history";
                         case "human" -> "human / exact candidate";
@@ -290,6 +290,8 @@ public final class Main {
                       evidence,
                       display,
                       copy);
+                } catch (ModelProviders.MissingSetting missing) {
+                  display.state("BLOCKED", missing.getMessage());
                 } catch (InterruptedException interrupted) {
                   Thread.currentThread().interrupt();
                 } catch (IOException error) {
@@ -358,10 +360,8 @@ public final class Main {
       }
       return;
     }
-    var key = env("GOOGLE_API_KEY", System.getenv("GOOGLE_AI_API_KEY"));
-    if (key == null || key.isBlank())
-      throw new IllegalArgumentException(
-          "Set GOOGLE_API_KEY or GOOGLE_AI_API_KEY; use ./jclaw preview for UI fixtures");
+    var key = ModelProviders.googleKey(System.getenv());
+    var models = ModelProviders.create(mode, lineup, System.getenv(), evidence);
     try (var mcp =
         new McpTools(
             root, env("JCLAW_MOCK_DELIVERY", "success"), line -> evidence.event("MCP", line))) {
@@ -377,9 +377,9 @@ public final class Main {
           new DemoSession(
               mode,
               decider(mode, lineup, key, evidence, display),
-              model("chat", lineup.chat(), key, evidence),
-              model("draft/refine", lineup.draft(), key, evidence),
-              model("review", lineup.review(), key, evidence),
+              models.chat(),
+              models.draft(),
+              models.review(),
               mcp,
               history,
               memories,
@@ -459,15 +459,7 @@ public final class Main {
 
   private static GoogleAiGeminiChatModel model(
       String role, String name, String key, TraceEvidence evidence) {
-    evidence.event(
-        "PROVIDER", role + "=" + name + " (Gemini API); provisional comparison agreement pending");
-    return GoogleAiGeminiChatModel.builder()
-        .apiKey(key)
-        .modelName(name)
-        .maxRetries(0)
-        .timeout(Duration.ofSeconds(90))
-        .listeners(List.of(evidence.modelListener(role, name)))
-        .build();
+    return ModelProviders.gemini(role, name, key, evidence);
   }
 
   private static String env(String name, String fallback) {

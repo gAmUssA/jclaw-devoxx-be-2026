@@ -21,6 +21,8 @@ main() (
   cat > "$fixture/project/.env" <<'ENV'
 GOOGLE_API_KEY=file-fixture
 TYPESAFE_API_KEY=file-jev-fixture
+ANTHROPIC_API_KEY=file-claude-fixture
+OPENAI_API_KEY=file-openai-fixture
 JCLAW_DECIDER=jev
 JCLAW_GEMINI_MODEL=file-model
 JCLAW_MOCK_DELIVERY=success
@@ -49,6 +51,8 @@ main() {
   printf '%s\n' "$JCLAW_ROOT" > app-root
   printf '%s\n' "$GOOGLE_API_KEY" > fixture-key
   printf '%s\n' "$TYPESAFE_API_KEY" > fixture-jev-key
+  printf '%s\n' "$ANTHROPIC_API_KEY" > fixture-claude-key
+  printf '%s\n' "$OPENAI_API_KEY" > fixture-openai-key
   printf '%s\n' "$JCLAW_DECIDER" > fixture-decider
   printf 'model=%s delivery=%s\n' "$JCLAW_GEMINI_MODEL" "$JCLAW_MOCK_DELIVERY"
 }
@@ -58,11 +62,14 @@ APP
   # These fixed fixture values replace any inherited credentials before launch.
   export GOOGLE_API_KEY=shell-fixture JCLAW_MOCK_DELIVERY=wrong-call JCLAW_TEST_BUILD_FAILURE=0
   export TYPESAFE_API_KEY=shell-jev-fixture JCLAW_DECIDER=gemini
+  export ANTHROPIC_API_KEY=shell-claude-fixture OPENAI_API_KEY=shell-openai-fixture
   unset JCLAW_GEMINI_MODEL
   cd "$fixture/caller"
   bash "$fixture/project/jclaw" guardrails plain > "$fixture/stdout" 2> "$fixture/stderr"
   [[ "$(cat "$fixture/project/fixture-key")" == shell-fixture ]]
   [[ "$(cat "$fixture/project/fixture-jev-key")" == shell-jev-fixture ]]
+  [[ "$(cat "$fixture/project/fixture-claude-key")" == shell-claude-fixture ]]
+  [[ "$(cat "$fixture/project/fixture-openai-key")" == shell-openai-fixture ]]
   [[ "$(cat "$fixture/project/fixture-decider")" == gemini ]]
   [[ "$(cat "$fixture/stdout")" == 'model=file-model delivery=wrong-call' ]]
   [[ "$(cat "$fixture/project/app-root")" == "$fixture/project" ]]
@@ -71,9 +78,12 @@ APP
 
   unset GOOGLE_API_KEY JCLAW_MOCK_DELIVERY JCLAW_GEMINI_MODEL
   unset TYPESAFE_API_KEY JCLAW_DECIDER
+  unset ANTHROPIC_API_KEY OPENAI_API_KEY
   bash "$fixture/project/jclaw" preview > "$fixture/stdout" 2> "$fixture/stderr"
   [[ "$(cat "$fixture/project/fixture-key")" == file-fixture ]]
   [[ "$(cat "$fixture/project/fixture-jev-key")" == file-jev-fixture ]]
+  [[ "$(cat "$fixture/project/fixture-claude-key")" == file-claude-fixture ]]
+  [[ "$(cat "$fixture/project/fixture-openai-key")" == file-openai-fixture ]]
   [[ "$(cat "$fixture/project/fixture-decider")" == jev ]]
   [[ "$(cat "$fixture/stdout")" == 'model=file-model delivery=success' ]]
   rm "$fixture/project/app-args"

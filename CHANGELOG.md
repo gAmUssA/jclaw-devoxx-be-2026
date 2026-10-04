@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Use Claude Opus 5.5 (`claude-opus-5-5`) for Draft/Refine and GPT-6 Astra
+  (`gpt-6-astra`) for Judge through native LangChain4j API clients. Keep Jev
+  Identify and Gemini chat/skills. Require the new API keys only for rounds 5–7,
+  disclose actual transports in the UI and trace, and record the choice in ADR 0004.
+- Verify native Anthropic/OpenAI HTTP requests, typed refinement, strict Judge
+  output, provider failure blocking and shell-over-file credential precedence
+  without contacting hosted providers.
 - Derive seven feature-removal checkpoints from validated main using a Java 21
   source projection, with native capability tests and a staged-secret hook.
   Record the branch strategy in ADR 0003.

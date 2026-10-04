@@ -4,10 +4,12 @@ import static dev.gamov.jclaw.Contracts.requireText;
 
 import java.util.Map;
 
-/** Jev decisions and separately configured provisional Gemini generation roles. */
+/** Jev decisions, Gemini chat, Claude drafting and an OpenAI model critic. */
 public record ModelLineup(
     String identify, String draft, String review, String chat, String decider) {
   public static final String DEFAULT_MODEL = "gemini-3.7-flash";
+  public static final String DEFAULT_DRAFT_MODEL = "claude-opus-5-5";
+  public static final String DEFAULT_REVIEW_MODEL = "gpt-6-astra";
 
   public ModelLineup {
     requireText(identify, "identification model");
@@ -22,8 +24,8 @@ public record ModelLineup(
     var fallback = value(environment, "JCLAW_GEMINI_MODEL", DEFAULT_MODEL);
     return new ModelLineup(
         value(environment, "JCLAW_IDENTIFY_MODEL", fallback),
-        value(environment, "JCLAW_DRAFT_MODEL", fallback),
-        value(environment, "JCLAW_REVIEW_MODEL", fallback),
+        value(environment, "JCLAW_DRAFT_MODEL", DEFAULT_DRAFT_MODEL),
+        value(environment, "JCLAW_REVIEW_MODEL", DEFAULT_REVIEW_MODEL),
         value(environment, "JCLAW_CHAT_MODEL", fallback),
         value(environment, "JCLAW_DECIDER", "jev"));
   }
@@ -35,11 +37,11 @@ public record ModelLineup(
             : identify + " Gemini comparison")
         + " | chat: "
         + chat
-        + " API → draft/refine: "
+        + " Gemini API → draft/refine: "
         + draft
-        + " API → review: "
+        + " Anthropic API → review: "
         + review
-        + " API | organizer: mock";
+        + " OpenAI API | organizer: mock";
   }
 
   private static String value(Map<String, String> environment, String name, String fallback) {

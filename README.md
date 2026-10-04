@@ -111,8 +111,22 @@ and chose Gemini temporarily for the generation roles.
 | Intent + event decision | Jev API | Native `TypeSafeDecisionModel`, `jev-1.13.0` | `TYPESAFE_API_KEY`; `JCLAW_DECIDER=jev` |
 | Canonical request assembly | Application code | Java, actual MCP/memory reads | Shared fixtures/policy |
 | Ordinary chat and runtime skills | Gemini API | Gemini API | `JCLAW_CHAT_MODEL` |
-| Draft and Refine `DeclineDeployment` | Claude subscription CLI | Gemini API | `JCLAW_DRAFT_MODEL` |
-| Judge exact `DeclineReview` → `DeclineCritique` | Codex subscription CLI | Gemini API | `JCLAW_REVIEW_MODEL` |
+| Draft and Refine `DeclineDeployment` | Claude / Anthropic, subscription CLI | Gemini API | `JCLAW_DRAFT_MODEL` |
+| Judge exact `DeclineReview` → `DeclineCritique` | Codex / OpenAI, subscription CLI | Gemini API | `JCLAW_REVIEW_MODEL` |
+
+Claude's runtime role is to write and refine the candidate. Codex's runtime role
+is to evaluate the exact typed request and candidate, returning a critique.
+These roles are separate from the coding assistant building this repository.
+The handoff specifies subscription CLI transports for those model calls;
+Anthropic and OpenAI name their providers, not API transports selected here.
+The human is critic two; Java owns exact-candidate delivery and receipt validation.
+
+The current implementation instantiates `GoogleAiGeminiChatModel` separately for
+chat, Draft/Refine and Judge. Changing `JCLAW_DRAFT_MODEL` or `JCLAW_REVIEW_MODEL`
+selects a Gemini model ID; it does not switch providers or launch either CLI.
+Claude and Codex runtime adapters remain deferred under the user's temporary
+Gemini choice. Exact CLI model IDs and transports must be agreed before paired
+comparison; independent typed agents using Gemini are not multi-provider evidence.
 
 Gemini roles default to `JCLAW_GEMINI_MODEL=gemini-3.7-flash`. Blank overrides use
 that default. `JCLAW_DECIDER=gemini` explicitly selects the comparison router using

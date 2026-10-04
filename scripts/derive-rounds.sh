@@ -60,6 +60,8 @@ main() (
     (
       cd "$worktree"
       ./gradlew :app:spotlessApply "${gradle_args[@]}" > "$root/state/round-validation/$mode-build.txt" 2>&1
+      mkdir -p "$root/state/round-validation/$mode-test-results"
+      cp app/build/test-results/test/TEST-*.xml "$root/state/round-validation/$mode-test-results/"
       app/build/install/app/bin/app --help > "$root/state/round-validation/$mode-help.txt"
       git add -- app/src .round-checkpoint
       git commit -m "Derive round $round: $mode"

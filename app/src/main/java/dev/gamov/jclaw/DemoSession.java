@@ -82,7 +82,7 @@ public final class DemoSession {
     if (mode.round() >= 4) tools.add(skills);
     // checkpoint:end skills
     var systemPrompt =
-        "You are Baruch's personal assistant. Never send or claim external actions. "
+        "You are Viktor's personal assistant. Never send or claim external actions. "
             + "A language rewrite sends nothing and cannot replace a reviewed candidate. "
             + "User context: "
             + Scenario.USER_CONTEXT

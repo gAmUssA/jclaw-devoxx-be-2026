@@ -19,6 +19,8 @@ agreement or comparable CLI cost claim is implied.
 ## Competitive rounds
 
 Use chatbot, tools, memory, skills, workflow, guardrails and observability in order.
+The LangChain4j assistant serves Viktor: chat, Draft and Judge use his name with
+the shared fictional training scenario. The pinned upstream reference uses Baruch.
 The shared opening request is in README.md. Calendar dates are fictional.
 Round 4 demonstrates catalog metadata then scoped skill body loading. Corporate
 language defaults to eleven and preserves facts, intent and commitments. A rewrite

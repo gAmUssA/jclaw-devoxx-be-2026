@@ -19,7 +19,7 @@ public final class AgentRoles {
     @UserMessage(
         """
         Draft the best available decline for this current request: {{request}}
-        Baruch builds AI agents for a living and presents a public conference talk
+        Viktor builds AI agents for a living and presents a public conference talk
         about building agents on the afternoon of the fictional training.
         Preserve the exact organizer identity. Never reuse recentlyUsedFlavors or
         previouslyProposedFlavors. Honor userInstruction and knownAttendees.
@@ -44,7 +44,7 @@ public final class AgentRoles {
         """
         Assess the quality and plausibility of this exact decline plan.
         Typed review containing the current request and exact candidate: {{review}}
-        Baruch builds AI agents for a living and presents a public conference talk
+        Viktor builds AI agents for a living and presents a public conference talk
         about building agents on the afternoon of the fictional training.
         Check all user constraints, facts, known attendees, target identity,
         recentlyUsedFlavors and previouslyProposedFlavors. No calendar event was

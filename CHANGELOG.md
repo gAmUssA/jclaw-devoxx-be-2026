@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Clarify that Java reports avoided reasons separately and Judge reviews the
+  typed candidate. Instruct Draft/Refine to remove rejected claims and avoid
+  substantive excuse reuse, invented scheduling facts and unnecessary extra reasons.
 - Preserve Gemini 3 function-call signatures with the native Google GenAI client
   while keeping thought summaries and opaque signatures out of traces (ADR 0005).
   Verify signed parallel and sequential calls through the actual MCP tools at a

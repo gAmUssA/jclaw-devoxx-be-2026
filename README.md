@@ -148,6 +148,12 @@ Code rechecks the selected event and canonical organizer before assembling the
 request, retrieves the three seed documents and confirmed history, and keeps
 current-session proposed flavors separate from sent flavors.
 
+Java reports the avoided reasons separately to the user. Draft writes the two
+outward scripts; Judge evaluates the typed candidate and does not require that
+separate report inside it. Both roles check the substance of a reused excuse,
+including a calendar conflict disguised under another flavor label. Background
+facts provide context; they do not require adding another excuse to every draft.
+
 Native LangChain4j Agentic loop, sequence and conditional builders orchestrate
 typed draft and Judge agents. Judge receives one `DeclineReview` with the current
 request and exact plan. Draft and Judge have no tools; a claimed supporting event

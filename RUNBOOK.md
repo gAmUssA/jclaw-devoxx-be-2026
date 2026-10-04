@@ -13,6 +13,12 @@
 Current lineup is Jev 1.13.0 native DecisionModel for Identify, Java request
 assembly, and provisional Gemini 3.7 Flash API for chat, draft/refine and Judge.
 Draft/Judge differ from Koog's Claude/Codex subscription CLIs, as agreed for now.
+For narration: Claude (Anthropic) is the target writer/refiner; Codex (OpenAI)
+is the target model critic; the human is critic two. Those are runtime workflow
+roles. In this LangChain4j rehearsal, separate Gemini agents temporarily fill
+the writer and model-critic roles. The coding assistant building the Java app
+is a separate use of Codex. The handoff specifies subscription CLIs; this build
+currently makes Gemini API calls and does not invoke Claude or Codex at runtime.
 The dashboard provider legend shows actual configured role IDs. No final transport
 agreement or comparable CLI cost claim is implied.
 

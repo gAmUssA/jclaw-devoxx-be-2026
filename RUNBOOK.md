@@ -2,25 +2,24 @@
 
 ## Prepare
 
-1. Agree exact model IDs and transports with the Koog side.
+1. Disclose the configured API models and the Koog side's subscription CLI transports.
 2. Run `bash scripts/shared.sh` and `./gradlew :app:check :app:installDist :mocks:mcpJars`.
-3. Set local Jev and Gemini credentials using `.env.example`.
+3. Set local Jev, Gemini, Anthropic and OpenAI credentials using `.env.example`.
 4. Open `./jclaw preview` at projector dimensions; confirm the fixture label.
 5. Explicitly select the same memory snapshot on both sides. Use
    `rm -f state/sent-history.json` only when choosing the three-seed baseline;
    preserve confirmed sends after rehearsal, restart and branch changes.
 
 Current lineup is Jev 1.13.0 native DecisionModel for Identify, Java request
-assembly, and provisional Gemini 3.7 Flash API for chat, draft/refine and Judge.
-Draft/Judge differ from Koog's Claude/Codex subscription CLIs, as agreed for now.
-For narration: Claude (Anthropic) is the target writer/refiner; Codex (OpenAI)
-is the target model critic; the human is critic two. Those are runtime workflow
-roles. In this LangChain4j rehearsal, separate Gemini agents temporarily fill
-the writer and model-critic roles. The coding assistant building the Java app
-is a separate use of Codex. The handoff specifies subscription CLIs; this build
-currently makes Gemini API calls and does not invoke Claude or Codex at runtime.
-The dashboard provider legend shows actual configured role IDs. No final transport
-agreement or comparable CLI cost claim is implied.
+assembly, Gemini 3.7 Flash API for chat/skills, Claude Opus 5.5 Anthropic API for
+Draft/Refine, and GPT-6 Astra OpenAI API for Judge. The human is critic two.
+Use `JCLAW_DRAFT_MODEL=claude-opus-5-5` and `JCLAW_REVIEW_MODEL=gpt-6-astra`.
+The coding assistant building the Java app is a separate use of Codex.
+The handoff/Koog app uses Claude and Codex subscription CLIs; the Java app uses
+native API clients and launches no CLI. Narrate its critic as OpenAI API Judge,
+not Codex CLI. Compare API usage and subscription usage separately. The dashboard
+and trace show actual providers and configured role IDs. Rounds 1–4 require only
+Gemini credentials; missing workflow credentials block rounds 5–7 before model calls.
 
 ## Competitive rounds
 

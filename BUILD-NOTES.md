@@ -1,10 +1,10 @@
 # Verification evidence
 
-Current application baseline: `a5834c7`, Java 21 with native Jev Identify and
-provisional Gemini generation roles. Main and its fresh Git clone passed 58 tests;
-all seven local checkpoint branches passed their checks. Final branch mapping,
-clone and dashboard evidence appear at the end. Earlier sections preserve
-explicitly historical runs and do not describe the current model lineup or budget.
+Current lineup: Java 21, native Jev Identify, Gemini chat/skills, Claude Opus 5.5
+Anthropic API Draft/Refine, and GPT-6 Astra OpenAI API Judge. The complete build
+passes 67 provider-free tests. See the latest provider evidence at the end.
+Earlier sections preserve historical runs; Gemini drafting/review smoke tests
+do not validate the current Claude/OpenAI lineup.
 
 ## Initial Java implementation evidence (historical)
 
@@ -241,3 +241,35 @@ the user. Hosted export, per-HTTP retry timings and expanded live refinement/ski
 rehearsals are not implemented or not approved. Actual candidate wording still
 needs human inspection. There is no repository remote, PR or CI run; these local
 branches and checks are not a publication or paired benchmark.
+
+## Native Claude/OpenAI API roles
+
+The user selected `claude-opus-5-5` for Draft/Refine and `gpt-6-astra` for Judge,
+with API transports authorized instead of subscription CLI integration. Native
+LangChain4j Anthropic and OpenAI modules are pinned to 1.21.0. Jev Identify,
+Gemini chat/skills, Java request assembly and the shared review/approval rules
+remain in place. ADR 0004 supersedes ADR 0002's temporary generation-provider
+choice. The app invokes no Claude/Codex CLI and makes no CLI cost-equivalence claim.
+
+Focused model/provider tests and then the complete check passed:
+
+```bash
+./gradlew :app:spotlessApply :app:test --tests dev.gamov.jclaw.ModelProvidersTest --tests dev.gamov.jclaw.ModelLineupTest --console=plain
+./gradlew :app:check :app:installDist :mocks:mcpJars --console=plain --offline
+app/build/install/app/bin/app --help
+```
+
+Complete results: 67 tests, zero skipped, zero failures/errors; strict Java
+compiler diagnostics, Spotless, ShellCheck and launcher/projection/bootstrap
+harnesses passed. The installed help prints the actual Claude/OpenAI API roles
+and agreed IDs. Native HTTP clients execute against a loopback fixture server:
+one Claude draft, one rejection from OpenAI, one Claude refinement, and fresh
+OpenAI approval of the exact revised plan. Requests carry the correct vendor
+credentials and model IDs, strict Judge JSON Schema, no action tools and
+`store=false`. A 503 Judge response blocks after one request without refinement,
+automatic retry or model fallback. Trace checks exclude fake credentials and
+fixture thinking text while retaining final outputs and actual provider names.
+Early rounds initialize only Gemini; missing workflow keys give safe remedies.
+
+These are provider-free boundary tests. Live Claude/OpenAI calls have not run;
+access to the selected models and live latency require the user's API keys.

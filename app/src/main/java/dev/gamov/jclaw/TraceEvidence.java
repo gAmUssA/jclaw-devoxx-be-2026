@@ -169,6 +169,10 @@ public final class TraceEvidence {
   }
 
   public ChatModelListener modelListener(String role, String model) {
+    return modelListener(role, "Gemini API", model);
+  }
+
+  public ChatModelListener modelListener(String role, String provider, String model) {
     return new ChatModelListener() {
       private final Object key = new Object();
 
@@ -177,7 +181,7 @@ public final class TraceEvidence {
         context.attributes().put(key, nanoTime.getAsLong());
         event(
             "MODEL_INPUT",
-            role + " / " + model + " (Gemini API) " + context.chatRequest().messages());
+            role + " / " + model + " (" + provider + ") " + context.chatRequest().messages());
       }
 
       @Override
@@ -190,10 +194,13 @@ public final class TraceEvidence {
             role
                 + " / "
                 + model
+                + " ("
+                + provider
+                + ")"
                 + " durationMs="
                 + elapsed
                 + " "
-                + context.chatResponse().aiMessage()
+                + context.chatResponse().aiMessage().text()
                 + " usage="
                 + context.chatResponse().tokenUsage());
       }
@@ -209,6 +216,9 @@ public final class TraceEvidence {
             role
                 + " / "
                 + model
+                + " ("
+                + provider
+                + ")"
                 + " durationMs="
                 + elapsed
                 + " "

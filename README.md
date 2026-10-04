@@ -4,11 +4,12 @@ Java 21 implementation for **Codepocalypse Now: LangChain4j vs JetBrains Koog**.
 All application and test sources are Java. The shared upstream domain, MCP mocks
 and TamboUI module are Kotlin dependencies.
 
-Jev `jev-1.13.0` is the default intent/event decider. Gemini API handles chat,
-drafting/refinement and Judge temporarily, as requested. Live rounds 5–7 require
-TypeSafe and Google API credentials; API calls may incur charges. Final draft and
-Judge transports will be decided before paired rehearsal. Provider-free tests
-and the labelled UI preview require no credentials.
+Jev `jev-1.13.0` decides intent/event. Gemini API handles chat and skills. Claude
+Opus 5.5 API drafts/refines; GPT-6 Astra API judges the exact request and plan.
+Live rounds 5–7 require TypeSafe, Google, Anthropic and OpenAI API credentials;
+API calls may incur charges. This build uses API transports, while the Koog
+reference uses Claude/Codex subscription CLIs. Provider-free tests and the
+labelled UI preview require no credentials.
 
 ## Start and stop
 
@@ -23,7 +24,7 @@ The launcher downloads the pinned shared source and builds both mock jars.
 
 ```bash
 cp .env.example .env
-# Set TYPESAFE_API_KEY and GOOGLE_API_KEY in .env.
+# Set GOOGLE_API_KEY, TYPESAFE_API_KEY, ANTHROPIC_API_KEY and OPENAI_API_KEY in .env.
 # JEV_API_KEY and GOOGLE_AI_API_KEY are accepted shell aliases.
 ./jclaw guardrails
 # Stop the dashboard with Ctrl+C.
@@ -41,8 +42,10 @@ The dashboard needs an ANSI terminal at least 120 columns × 32 rows. Use `plain
 with `TERM=dumb` or redirected input/output. Automated PTY rehearsals must supply
 `TERM=xterm-256color`; that setting is local to the command, not machine config.
 Use your own [TypeSafe API key](https://docs.typesafe.ai/api) for Jev and
-[Google AI Studio key](https://aistudio.google.com/apikey) for Gemini. The
-provider-free `./jclaw preview` and deterministic checks need neither account.
+[Google AI Studio key](https://aistudio.google.com/apikey) for Gemini. Rounds 5–7
+also need [Anthropic](https://platform.claude.com/settings/keys) and
+[OpenAI](https://platform.openai.com/api-keys) keys. Rounds 1–4 need only Google.
+The provider-free `./jclaw preview` and deterministic checks need no accounts.
 The launcher preserves state and never switches branches. Existing shell settings
 take precedence over `.env`, including `JCLAW_MOCK_DELIVERY` and model overrides.
 Bootstrap installs `.shared` atomically; a failed fetch leaves no partial cache.
@@ -104,34 +107,39 @@ the launcher rebuilds the selected branch's distribution before running it.
 
 The [October 4 handoff](https://github.com/jbaruch/jclaw-devoxx/blob/70d1856ad32e718dc6c3594295b2eb144b132ea0/HANDOFF-LC4J.md)
 assigns separate decision and generation roles. The user approved Jev Identify
-and chose Gemini temporarily for the generation roles.
+and native API transports for Claude Draft/Refine and OpenAI Judge.
 
 | Stage | Handoff provider | Current provider | Configuration |
 |---|---|---|---|
 | Intent + event decision | Jev API | Native `TypeSafeDecisionModel`, `jev-1.13.0` | `TYPESAFE_API_KEY`; `JCLAW_DECIDER=jev` |
 | Canonical request assembly | Application code | Java, actual MCP/memory reads | Shared fixtures/policy |
-| Ordinary chat and runtime skills | Gemini API | Gemini API | `JCLAW_CHAT_MODEL` |
-| Draft and Refine `DeclineDeployment` | Claude / Anthropic, subscription CLI | Gemini API | `JCLAW_DRAFT_MODEL` |
-| Judge exact `DeclineReview` → `DeclineCritique` | Codex / OpenAI, subscription CLI | Gemini API | `JCLAW_REVIEW_MODEL` |
+| Ordinary chat and runtime skills | Gemini API | Gemini API, `gemini-3.7-flash` | `GOOGLE_API_KEY`; `JCLAW_CHAT_MODEL` |
+| Draft and Refine `DeclineDeployment` | Claude / Anthropic, subscription CLI | Anthropic API, `claude-opus-5-5` | `ANTHROPIC_API_KEY`; `JCLAW_DRAFT_MODEL` |
+| Judge exact `DeclineReview` → `DeclineCritique` | Codex / OpenAI, subscription CLI | OpenAI API, `gpt-6-astra` | `OPENAI_API_KEY`; `JCLAW_REVIEW_MODEL` |
 
-Claude's runtime role is to write and refine the candidate. Codex's runtime role
-is to evaluate the exact typed request and candidate, returning a critique.
-These roles are separate from the coding assistant building this repository.
-The handoff specifies subscription CLI transports for those model calls;
-Anthropic and OpenAI name their providers, not API transports selected here.
+Claude writes and refines the candidate. GPT-6 Astra evaluates the exact typed
+request and candidate, returning a critique. These roles are separate from the
+coding assistant building this repository. The Java app invokes native
+`AnthropicChatModel` and `OpenAiChatModel`; it does not launch either CLI.
+Call the Java critic an OpenAI API Judge, not Codex CLI. Compare API usage and
+subscription usage separately; matching workflow roles does not establish
+model, transport or cost equivalence with the Koog implementation.
 The human is critic two; Java owns exact-candidate delivery and receipt validation.
 
-The current implementation instantiates `GoogleAiGeminiChatModel` separately for
-chat, Draft/Refine and Judge. Changing `JCLAW_DRAFT_MODEL` or `JCLAW_REVIEW_MODEL`
-selects a Gemini model ID; it does not switch providers or launch either CLI.
-Claude and Codex runtime adapters remain deferred under the user's temporary
-Gemini choice. Exact CLI model IDs and transports must be agreed before paired
-comparison; independent typed agents using Gemini are not multi-provider evidence.
+`ModelProviders.java` fixes each transport to its workflow role. Set
+`JCLAW_DRAFT_MODEL=claude-opus-5-5` and `JCLAW_REVIEW_MODEL=gpt-6-astra`; blank
+overrides retain those defaults. The native OpenAI client requests strict JSON
+Schema and disables response storage. Claude's adaptive thinking is not disabled;
+only final answer text is returned and traced. No action tools are registered
+with either generation agent. Missing credentials block startup; invalid or
+unavailable output blocks the workflow without switching providers.
 
-Gemini roles default to `JCLAW_GEMINI_MODEL=gemini-3.7-flash`. Blank overrides use
-that default. `JCLAW_DECIDER=gemini` explicitly selects the comparison router using
+Gemini chat and optional comparison Identify default to
+`JCLAW_GEMINI_MODEL=gemini-3.7-flash`; this setting cannot override Claude or
+OpenAI models. `JCLAW_DECIDER=gemini` explicitly selects the comparison router using
 `JCLAW_IDENTIFY_MODEL`; it is never a fallback for Jev failure. The launcher help,
 dashboard and trace disclose actual configured models and transports.
+See [ADR 0004](docs/adr/0004-native-claude-and-openai-api-roles.md) for the provider decision.
 
 Jev receives the original user message, user/assistant conversation and actual
 calendar records with date labels computed in Java. It gets no persona prompt or
@@ -191,8 +199,10 @@ bash scripts/shared.sh
 
 Java compilation uses `-Xlint:all -Werror`. Tests exercise native LangChain4j output
 parsing, shared Kotlin serializer compatibility, human decisions, every shared
-MCP delivery fixture and restart persistence. Test model responses are network
-boundary fixtures; they are not presented as live provider evidence.
+MCP delivery fixture and restart persistence. Local HTTP tests run the native
+Anthropic/OpenAI clients through typed drafting, refinement and review, checking
+authentication, requested models, strict Judge schema and failure blocking.
+Test model responses are network boundary fixtures; they are not live provider evidence.
 
 Actual model inputs, outputs, usage, durations, review attempts and application
 routes are written to ignored `state/trace.jsonl` with trace IDs, timestamps and

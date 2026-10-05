@@ -60,6 +60,7 @@ public final class Workflow {
   public static final class Run {
     private final String id = UUID.randomUUID().toString();
     private DeclineRequest request;
+    private final OrganizerContext organizerContext;
     private int refinements;
     private DeclineDeployment previous;
     private String feedback = "";
@@ -67,8 +68,9 @@ public final class Workflow {
     private boolean skipJudge;
     private String stage;
 
-    private Run(DeclineRequest request) {
+    private Run(DeclineRequest request, OrganizerContext organizerContext) {
       this.request = request;
+      this.organizerContext = organizerContext;
     }
 
     public String id() {
@@ -112,6 +114,7 @@ public final class Workflow {
                   run.stage = run.previous == null ? "draft" : "refine";
                   events.accept(new Stage(run.stage, Phase.STARTED, run.refinements + 1));
                   scope.writeState("request", run.request);
+                  scope.writeState("organizerContext", run.organizerContext);
                   scope.writeState(
                       "previous",
                       run.previous == null ? "No previous plan" : Json.write(run.previous));
@@ -235,7 +238,14 @@ public final class Workflow {
   }
 
   public Run begin(DeclineRequest request) {
-    return new Run(request);
+    return begin(
+        request, new OrganizerContext(request.organizerName(), OrganizerSensitivity.UNKNOWN));
+  }
+
+  public Run begin(DeclineRequest request, OrganizerContext organizerContext) {
+    if (!request.organizerName().equals(organizerContext.organizerName()))
+      throw new IllegalArgumentException("Organizer context must match the canonical request");
+    return new Run(request, organizerContext);
   }
 
   public Result run(DeclineRequest request) {

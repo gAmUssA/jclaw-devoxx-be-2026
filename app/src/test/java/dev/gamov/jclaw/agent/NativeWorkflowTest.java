@@ -1,6 +1,6 @@
 package dev.gamov.jclaw.agent;
 
-import static dev.gamov.jclaw.domain.Contracts.Scenario;
+import static dev.gamov.jclaw.domain.Contracts.*;
 import static dev.gamov.jclaw.testing.TestSupport.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,6 +12,26 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class NativeWorkflowTest {
+  @Test
+  void organizerContextCannotBindToAnotherRecipientOrInventMcpSensitivity() {
+    var draft = new ModelEndpoint(Json.write(PLAN));
+    var review = new ModelEndpoint(Json.write(APPROVAL));
+    var workflow = new Workflow(draft, review, event -> {});
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            workflow.begin(
+                REQUEST, new OrganizerContext("Different organizer", OrganizerSensitivity.TOUCHY)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> OrganizerContext.fromMcp(Scenario.ORGANIZER, "UNKNOWN"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> OrganizerContext.fromMcp(Scenario.ORGANIZER, "unbounded value"));
+    assertTrue(draft.requests.isEmpty());
+    assertTrue(review.requests.isEmpty());
+  }
+
   @Test
   void nativeAgentsParseTypedContractsAndReviewExactCurrentRequest() {
     var draft = new ModelEndpoint(Json.write(PLAN));

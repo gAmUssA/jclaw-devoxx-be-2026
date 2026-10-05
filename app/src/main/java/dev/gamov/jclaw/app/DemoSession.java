@@ -221,6 +221,7 @@ public final class DemoSession {
             .orElseThrow(
                 () -> new IllegalStateException("Selected calendar identity changed before Draft"));
     var sensitivity = mcp.sensitivity(canonical.organizer());
+    var organizerContext = OrganizerContext.fromMcp(canonical.organizer(), sensitivity);
     display.event("ORGANIZER", canonical.organizer() + " sensitivity=" + sensitivity);
     var request =
         new DeclineRequest(
@@ -240,7 +241,7 @@ public final class DemoSession {
     conversation.add(new TurnDecider.Message("user", instruction));
     display.event("WORKFLOW_STARTED", "Current canonical request: " + request);
     display.state("RUNNING", "Identify → Draft → Judge; six shared refinements");
-    run = workflow.begin(request);
+    run = workflow.begin(request, organizerContext);
     display.event(
         "REQUEST_RUN", "run=" + run.id() + " refinements=0 limit=" + Workflow.MAX_REFINEMENTS);
     show(workflow.resume(run));

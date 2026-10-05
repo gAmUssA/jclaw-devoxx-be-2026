@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Carry canonical organizer sensitivity as typed planning context through
+  Draft, Judge and refinement, without changing shared wire records (ADR 0006).
+
 - Validate every checkpoint test deletion target before rewriting the source
   tree, including malformed baselines missing either session test.
 

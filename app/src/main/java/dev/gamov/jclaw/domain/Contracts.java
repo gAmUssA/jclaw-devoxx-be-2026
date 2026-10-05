@@ -23,6 +23,29 @@ public final class Contracts {
     HR_WILL_NOTICE
   }
 
+  /** Local planning evidence, separate from the authoritative shared wire records. */
+  public enum OrganizerSensitivity {
+    EASYGOING,
+    NORMAL,
+    TOUCHY,
+    UNKNOWN
+  }
+
+  public record OrganizerContext(String organizerName, OrganizerSensitivity sensitivity) {
+    public OrganizerContext {
+      requireText(organizerName, "organizerName");
+      Objects.requireNonNull(sensitivity, "Missing organizer sensitivity");
+    }
+
+    public static OrganizerContext fromMcp(String organizerName, String value) {
+      requireText(value, "organizer sensitivity");
+      var sensitivity = OrganizerSensitivity.valueOf(value.strip());
+      if (sensitivity == OrganizerSensitivity.UNKNOWN)
+        throw new IllegalArgumentException("Organizer MCP must supply a known sensitivity");
+      return new OrganizerContext(organizerName, sensitivity);
+    }
+  }
+
   public record DeclineRequest(
       String eventId,
       List<ExcuseFlavor> recentlyUsedFlavors,

@@ -9,7 +9,6 @@ import dev.gamov.jclaw.agent.TurnDecider;
 import dev.gamov.jclaw.agent.Workflow;
 import dev.gamov.jclaw.domain.Delivery;
 import dev.gamov.jclaw.memory.SentHistory;
-import dev.gamov.jclaw.serialization.Json;
 import dev.gamov.jclaw.tools.McpTools;
 import dev.gamov.jclaw.tools.MemoryTools;
 import dev.gamov.jclaw.tools.SkillCatalog;
@@ -20,7 +19,6 @@ import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -157,46 +155,6 @@ public final class DemoSession {
   public void submit(String instruction, String approvalCandidateId) {
     requireText(instruction, "instruction");
     var answer = instruction.trim().toLowerCase(java.util.Locale.ROOT);
-    // checkpoint:begin humanInput 6
-    var candidate = pending;
-    if (candidate != null
-        && List.of("hold", "n", "no", "no thanks.", "don't send", "cancel").contains(answer)) {
-      workflow.humanVerdict(candidate, instruction);
-      remember(
-          instruction,
-          "Held proposal for " + candidate.request().eventId() + "; nothing sent or saved.");
-      block();
-      display.event("HUMAN_HOLD", "Candidate held; nothing sent");
-      display.state("HELD", "Nothing was sent");
-      return;
-    }
-    if (candidate != null && List.of("send", "y", "yes").contains(answer)) {
-      if (!candidateId(candidate).equals(approvalCandidateId))
-        throw new IllegalStateException(
-            "Queued approval belongs to an earlier candidate; review this exact message again");
-      memory.add(UserMessage.from(instruction));
-      conversation.add(new TurnDecider.Message("user", instruction));
-      workflow.humanVerdict(candidate, instruction);
-      send(candidate);
-      return;
-    }
-    if (candidate != null && instruction.startsWith("/chat ")) {
-      reply(instruction.substring(6));
-      display.state("HUMAN", "Ordinary chat leaves the exact reviewed candidate unchanged");
-      return;
-    }
-    if (candidate != null && !instruction.startsWith("/new ")) {
-      gate.reject(instruction);
-      pending = null;
-      conversation.add(new TurnDecider.Message("user", instruction));
-      memory.add(UserMessage.from(instruction));
-      display.event(
-          "HUMAN_REJECT",
-          "run=" + run.id() + " refinements=" + run.refinements() + " feedback=" + instruction);
-      show(workflow.reject(run, candidate, instruction));
-      return;
-    }
-    // checkpoint:end humanInput
     if (answer.equals("send") || answer.equals("hold")) {
       display.chat("No current reviewed candidate. Nothing was sent.");
       return;
@@ -315,20 +273,6 @@ public final class DemoSession {
             new TurnDecider.Message("assistant", "Reviewed proposal: " + reviewed.plan()));
         display.event(
             "REVIEWED", "run=" + reviewed.runId() + " refinements=" + reviewed.refinements());
-        // checkpoint:begin humanPrompt 6
-        if (mode.round() >= 6) {
-          gate.propose(reviewed);
-          pending = reviewed;
-          display.state(
-              "HUMAN",
-              "send / hold / feedback; "
-                  + reviewed.refinements()
-                  + "/6 refinements; /chat for ordinary chat; /new for a separate request");
-          display.workflow(
-              new Workflow.Stage("human", Workflow.Phase.STARTED, reviewed.refinements() + 1));
-          return;
-        }
-        // checkpoint:end humanPrompt
         display.state("PROPOSAL", "Round 5 ends with a reviewed proposal; no human gate or send");
       }
     }
@@ -360,51 +304,4 @@ public final class DemoSession {
     memory.add(UserMessage.from(instruction));
     memory.add(AiMessage.from(response));
   }
-
-  // checkpoint:begin send 6
-  private void send(Workflow.Reviewed candidate) {
-    var id =
-        Delivery.candidateId(
-            candidate.request().eventId(),
-            candidate.request().organizerName(),
-            candidate.plan().messageToOrganizer());
-    var envelope = gate.approve(id);
-    pending = null;
-    display.event("HUMAN_APPROVE", "candidateId=" + id + " callId=" + envelope.callId());
-    display.state("SENDING", "Sending the exact reviewed message to the organizer mock");
-    stage("send", Workflow.Phase.STARTED);
-    final DeclineReceipt receipt;
-    try {
-      receipt = mcp.send(envelope);
-    } catch (Delivery.Refused refused) {
-      stage("send", Workflow.Phase.FAILED);
-      display.state("BLOCKED", "Explicit refusal; no history written");
-      throw refused;
-    } catch (Delivery.Unconfirmed uncertain) {
-      stage("send", Workflow.Phase.FAILED);
-      display.state("UNCONFIRMED", "Check the organizer before retrying; no history written");
-      throw uncertain;
-    }
-    stage("send", Workflow.Phase.COMPLETED);
-    display.event("DELIVERED", Json.write(receipt));
-    display.state("DELIVERED", "Matching organizer receipt confirmed");
-    memory.add(AiMessage.from("Delivered literal message: " + envelope.message()));
-    conversation.add(
-        new TurnDecider.Message(
-            "assistant",
-            "Confirmed delivered to " + envelope.organizerName() + ": " + envelope.message()));
-    try {
-      stage("memory", Workflow.Phase.STARTED);
-      history.record(envelope, receipt, candidate.plan().flavor());
-      stage("memory", Workflow.Phase.COMPLETED);
-      display.event("MEMORY_SAVED", "Literal confirmed message and target persisted");
-    } catch (UncheckedIOException failure) {
-      stage("memory", Workflow.Phase.FAILED);
-      display.event(
-          "MEMORY_FAILED",
-          "Delivered, but saving history failed; preserve the receipt and repair state permissions");
-      throw failure;
-    }
-  }
-  // checkpoint:end send
 }

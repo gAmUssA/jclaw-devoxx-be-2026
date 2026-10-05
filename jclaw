@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+load_environment() {
+  local name index
+  local names=(GOOGLE_API_KEY GOOGLE_AI_API_KEY TYPESAFE_API_KEY JEV_API_KEY ANTHROPIC_API_KEY OPENAI_API_KEY JCLAW_DECIDER JCLAW_CHAT_MODEL JCLAW_GEMINI_MODEL JCLAW_IDENTIFY_MODEL JCLAW_DRAFT_MODEL JCLAW_REVIEW_MODEL JCLAW_MOCK_DELIVERY)
+  local saved_names=() saved_values=()
+  for name in "${names[@]}"; do
+    if [[ "${!name+x}" == x ]]; then
+      saved_names+=("$name")
+      saved_values+=("${!name}")
+    fi
+  done
+  if [[ -f .env ]]; then
+    set -a
+    # Runtime credentials are user-owned and unavailable to static linting.
+    # shellcheck source=/dev/null
+    source .env
+    set +a
+  fi
+  for ((index=0; index<${#saved_names[@]}; index++)); do
+    export "${saved_names[$index]}=${saved_values[$index]}"
+  done
+}
+
+main() {
+  local root
+  root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  cd "$root"
+  load_environment
+  bash scripts/shared.sh >&2
+  ./gradlew --console=plain :app:installDist :mocks:mcpJars >&2
+  export JCLAW_ROOT="$root"
+  exec app/build/install/app/bin/app "$@"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+main() {
+  if ! command -v gitleaks >/dev/null; then
+    printf '%s\n' 'Install gitleaks 8.30.1 before committing; see README.md.' >&2
+    return 1
+  fi
+  gitleaks git --pre-commit --staged --redact --no-banner
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi

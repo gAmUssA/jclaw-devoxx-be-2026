@@ -1,0 +1,116 @@
+# Devoxx rehearsal
+
+## Prepare
+
+1. Disclose the configured API models and the Koog side's subscription CLI transports.
+2. Run `bash scripts/shared.sh` and `./gradlew :app:check :app:installDist :mocks:mcpJars`.
+3. Set local Jev, Gemini, Anthropic and OpenAI credentials using `.env.example`.
+4. Open `./jclaw preview` at projector dimensions; confirm the fixture label.
+5. Explicitly select the same memory snapshot on both sides. Use
+   `rm -f state/sent-history.json` only when choosing the three-seed baseline;
+   preserve confirmed sends after rehearsal, restart and branch changes.
+
+Current lineup is Jev 1.13.0 native DecisionModel for Identify, Java request
+assembly, Gemini 3.7 Flash API for chat/skills, Claude Opus 5.5 Anthropic API for
+Draft/Refine, and GPT-6 Astra OpenAI API for Judge. The human is critic two.
+Use `JCLAW_DRAFT_MODEL=claude-opus-5-5` and `JCLAW_REVIEW_MODEL=gpt-6-astra`.
+The coding assistant building the Java app is a separate use of Codex.
+The handoff/Koog app uses Claude and Codex subscription CLIs; the Java app uses
+native API clients and launches no CLI. Narrate its critic as OpenAI API Judge,
+not Codex CLI. Compare API usage and subscription usage separately. The dashboard
+and trace show actual providers and configured role IDs. Rounds 1–4 require only
+Gemini credentials; missing workflow credentials block rounds 5–7 before model calls.
+
+## Competitive rounds
+
+Use chatbot, tools, memory, skills, workflow, guardrails and observability in order.
+The LangChain4j assistant serves Viktor: chat, Draft and Judge use his name with
+the shared fictional training scenario. The pinned upstream reference uses Baruch.
+Use `/copy` to copy the full latest reply or candidate for rehearsal notes;
+`/copy reply` and `/copy candidate` select the content explicitly. The latter
+copies just the literal email, without hallway script, critique or panel borders.
+The shared opening request is in README.md. Calendar dates are fictional.
+Round 4 demonstrates catalog metadata then scoped skill body loading. Corporate
+language defaults to eleven and preserves facts, intent and commitments. A rewrite
+sends nothing. The Koog framework-skill build meta-moment belongs to its own side.
+
+Round 5 stops at a reviewed proposal. Show actual critic reasoning. Six refinements are permitted per request, shared by Judge and Human; a
+rejection at six blocks. Approval at six remains possible. Round 6 owns the human loop:
+inspect the candidate, reject it substantively, inspect the fresh review, then
+approve or hold. Use the shared human feedback when it suits the candidate:
+
+> Make the email shorter and more direct. Keep the proficiency reason; remove
+> the Tuesday-afternoon reference.
+
+Check the same run ID, one Identify pass, cumulative counter and fresh Judge
+input. While Human waits, text is review feedback; `/chat ...` performs ordinary
+chat without replacing the reviewed message. `/new ...` starts a separate request.
+After Hold or delivery, “rewrite in corporate-speak” is ordinary conversation;
+follow it with “tone it down to 4.” Neither rewrite sends or saves history.
+
+Round 7 inspects `state/trace.jsonl` and the dashboard trace: actual route, request,
+exact draft, every review, duration, human decision, receipt and memory write.
+Jev decisions include actual probabilities/margins and raw typed IO. Calendar
+and canonical assembly are application operations. Local native graph/API traces
+and human verdict nodes are implemented; hosted export and subscription CLI traces are
+absent. Prepared previews and test fixtures remain labelled.
+
+Round 7 also saves native LangChain4j reports after every turn. Enter `/report`,
+open the printed `review-loop.html` and `human-review.html` paths in a browser,
+and refresh after feedback and hold. Show the actual loop topology and execution
+waterfall, then the separate human verdict graph. A native successful invocation
+is not business approval or delivery; use the JSONL receipt/history evidence for
+those outcomes. Native scope IDs and the application trace ID are distinct.
+For a provider-free report example, run `./gradlew :app:reportFixture --offline`
+and open the two files in `state/report-fixture/`; label them as fixture data.
+
+## Clipboard verification
+
+The native desktop clipboard access in `CopyCommands` is a platform-bound manual
+check; automated tests use a real in-memory JDK clipboard and verify complete
+Unicode text, paragraphs, candidate selection and availability errors. No test
+reads or changes the operator's system clipboard.
+
+Run `./jclaw preview`, enter `/copy reply`, and paste into a text editor. Expect
+exactly `UI FIXTURE DATA: prepared layout rehearsal; no providers or actions`.
+Then enter `/copy candidate`; paste should be exactly
+`Prepared message: I already build AI agents.`. Copying twice must give the same
+text. In a live round, `/copy reply` must include the complete response even when
+it scrolls beyond the visible panel. On a host without a desktop session, expect
+an availability message; the session remains usable. Clipboard access is on the
+application host, so SSH does not copy to the connecting client's clipboard.
+
+## Receipt failure rehearsal
+
+```bash
+JCLAW_MOCK_DELIVERY=success ./jclaw guardrails plain
+JCLAW_MOCK_DELIVERY=refused ./jclaw guardrails plain
+JCLAW_MOCK_DELIVERY=wrong-call ./jclaw guardrails plain
+JCLAW_MOCK_DELIVERY=wrong-candidate ./jclaw guardrails plain
+JCLAW_MOCK_DELIVERY=wrong-event ./jclaw guardrails plain
+JCLAW_MOCK_DELIVERY=malformed ./jclaw guardrails plain
+JCLAW_MOCK_DELIVERY=error ./jclaw guardrails plain
+```
+
+Only a validated successful receipt writes history. Refusal is explicit; all other
+failure fixtures remain unconfirmed. No automatic resend occurs. Restart to show
+confirmed history persisting while conversation resets.
+
+## Stop and reset
+
+Ctrl+C stops the dashboard. `/quit` stops plain mode. `rm -f state/sent-history.json`
+resets new sends and preserves the three committed upstream prior declines.
+The Port closing workflow is outside competitive scoring; its deployment and
+presentation narrative remain in the Koog/presentation workspaces.
+
+## Reference and timing
+
+Reference commit: `70d1856ad32e718dc6c3594295b2eb144b132ea0` (October 4 handoff).
+Round budgets: 12 / 25 / 15 / 10 / 35 / 25 / 20 minutes. Koog starts odd rounds;
+LangChain4j starts even rounds. Use `round/01-chatbot` through
+`round/07-observability` with the matching command in README. All checkpoints
+are projected from one validated complete main commit. Later modes are removed
+from each checkpoint; branch switches preserve confirmed history.
+Jev uses an 8-second timeout and two bounded transport retries. Native listener
+latency includes those retries; per-HTTP retry timings are not exported. No silent
+Gemini fallback occurs on a Jev contract or transport error.

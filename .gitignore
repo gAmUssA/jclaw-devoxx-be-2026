@@ -1,0 +1,12 @@
+.shared/
+.shared-download.*/
+.gradle/
+.gradle-user/
+.kotlin/
+**/build/
+.env
+.idea/
+*.iml
+.DS_Store
+state/
+*.log

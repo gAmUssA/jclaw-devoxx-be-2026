@@ -6,10 +6,7 @@ public enum DemoMode {
   CHATBOT(1),
   TOOLS(2),
   MEMORY(3),
-  SKILLS(4),
-  WORKFLOW(5),
-  GUARDRAILS(6),
-  OBSERVABILITY(7);
+  SKILLS(4);
   private final int round;
 
   DemoMode(int round) {

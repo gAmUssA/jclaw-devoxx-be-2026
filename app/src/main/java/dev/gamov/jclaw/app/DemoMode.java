@@ -8,8 +8,7 @@ public enum DemoMode {
   MEMORY(3),
   SKILLS(4),
   WORKFLOW(5),
-  GUARDRAILS(6),
-  OBSERVABILITY(7);
+  GUARDRAILS(6);
   private final int round;
 
   DemoMode(int round) {

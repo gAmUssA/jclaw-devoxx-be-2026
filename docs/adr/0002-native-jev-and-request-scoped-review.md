@@ -1,7 +1,10 @@
 # Native Jev decisions and a request-scoped Agentic review loop
 
 ## Status
-Superseded by 0004
+Accepted
+
+The generation-provider choice is superseded by [ADR 0004](0004-native-claude-and-openai-api-roles.md).
+The Jev routing, request-scoped review and human-loop decisions remain accepted.
 
 ## Date
 2026-10-04

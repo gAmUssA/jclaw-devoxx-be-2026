@@ -60,7 +60,20 @@ JAVA
     return 1
   fi
   [[ "$(cat "$project/app/src/main/java/dev/gamov/jclaw/app/DemoMode.java")" == "$before" ]]
-  printf '%s\n' 'PASS projection: seven round defaults, feature removals, state preservation and malformed-input fail-before-write'
+  for missing in DemoSessionTest JevSessionTest; do
+    project="$fixture/missing-$missing"
+    cp -R "$fixture/7" "$project"
+    cp "$root/app/src/main/java/dev/gamov/jclaw/app/DemoMode.java" "$project/app/src/main/java/dev/gamov/jclaw/app/DemoMode.java"
+    rm "$project/app/src/test/java/dev/gamov/jclaw/app/$missing.java"
+    before="$fixture/before-$missing"
+    cp -R "$project" "$before"
+    if java "$root/app/src/main/java/dev/gamov/jclaw/checkpoint/RoundProjection.java" 1 "$project" 0000000000000000000000000000000000000000 > "$fixture/error.txt" 2>&1; then
+      printf 'FAIL: missing %s was accepted\n' "$missing" >&2
+      return 1
+    fi
+    diff -r "$before" "$project"
+  done
+  printf '%s\n' 'PASS projection: seven defaults, capability removal, preserved state and invalid-input fail-before-write'
 )
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

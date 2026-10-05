@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Validate every checkpoint test deletion target before rewriting the source
+  tree, including malformed baselines missing either session test.
+
 - Read persisted excuse types from confirmed sent records, so literal message
   text cannot invent additional used reasons.
 

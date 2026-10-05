@@ -9,7 +9,6 @@ import com.jbaruch.jclaw.tui.JclawTui;
 import com.jbaruch.jclaw.tui.StageState;
 import com.jbaruch.jclaw.tui.TraceKind;
 import com.jbaruch.jclaw.tui.TraceStageState;
-import dev.gamov.jclaw.agent.GeminiDecider;
 import dev.gamov.jclaw.agent.JevDecider;
 import dev.gamov.jclaw.agent.TurnDecider;
 import dev.gamov.jclaw.agent.Workflow;
@@ -25,7 +24,6 @@ import dev.gamov.jclaw.tools.MemoryTools;
 import dev.gamov.jclaw.tools.SkillCatalog;
 import dev.langchain4j.exception.LangChain4jException;
 import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
-import dev.langchain4j.model.typesafe.TypeSafeDecisionModel;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -33,7 +31,6 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -469,35 +466,7 @@ public final class Main {
       String googleKey,
       TraceEvidence evidence,
       SessionDisplay display) {
-    // checkpoint:begin decider 5
-    if (mode.round() < 5)
-      return (input, conversation, calendar) ->
-          new TurnDecider.Decision(TurnDecider.Path.CHAT, null);
-    if (lineup.decider().equals("gemini")) {
-      evidence.event("PROVIDER", "Explicit Gemini Identify comparison; Jev parity not claimed");
-      return new GeminiDecider(
-          model("identify-comparison", lineup.identify(), googleKey, evidence));
-    }
-    var key = env("TYPESAFE_API_KEY", System.getenv("JEV_API_KEY"));
-    if (key == null || key.isBlank())
-      throw new IllegalArgumentException(
-          "Set TYPESAFE_API_KEY for Jev Identify; comparison requires explicit JCLAW_DECIDER=gemini");
-    var model =
-        TypeSafeDecisionModel.builder()
-            .apiKey(key)
-            .modelName(JevDecider.MODEL)
-            .timeout(Duration.ofSeconds(8))
-            .maxRetries(2)
-            .listeners(evidence.decisionListener())
-            .build();
-    evidence.event(
-        "PROVIDER",
-        "identify="
-            + JevDecider.MODEL
-            + " native DecisionModel / TypeSafe API / beta31 / 8s / maxRetries=2");
-    return new JevDecider(
-        model, lines -> display.event("DECISION", String.join("\n", lines)), display::workflow);
-    // checkpoint:end decider
+    return (input, conversation, calendar) -> new TurnDecider.Decision(TurnDecider.Path.CHAT, null);
   }
 
   private static GoogleGenAiChatModel model(

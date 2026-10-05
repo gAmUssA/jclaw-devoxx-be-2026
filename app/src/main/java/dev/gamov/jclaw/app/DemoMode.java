@@ -8,6 +8,7 @@ public enum DemoMode {
   MEMORY(3),
   SKILLS(4),
   WORKFLOW(5);
+  private static final int DEFAULT_ROUND = 5;
   private final int round;
 
   DemoMode(int round) {
@@ -33,7 +34,7 @@ public enum DemoMode {
 
   public static DemoMode defaultMode() {
     return Arrays.stream(values())
-        .filter(mode -> mode.round == 6)
+        .filter(mode -> mode.round == DEFAULT_ROUND)
         .findFirst()
         .orElse(values()[values().length - 1]);
   }

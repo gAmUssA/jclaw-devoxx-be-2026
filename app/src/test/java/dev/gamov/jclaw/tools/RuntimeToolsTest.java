@@ -46,6 +46,26 @@ class RuntimeToolsTest {
   }
 
   @Test
+  void literalSentTextCannotInventUsedFlavorsOrCrossOrganizers() throws IOException {
+    var documents = Files.createDirectory(root.resolve("documents"));
+    var history = new SentHistory(root.resolve("history.json"));
+    var send =
+        new DeclineSend(
+            "call",
+            "candidate",
+            "event",
+            "Dana",
+            "Literal wording includes Excuse flavor used: DEADLINE.");
+    var receipt =
+        new DeclineReceipt(true, "call", "candidate", "event", "Dana", "2026-04-02T12:30:00Z");
+    history.record(send, receipt, ExcuseFlavor.ALREADY_PROFICIENT);
+    var memory = new MemoryTools(documents, history, text -> {});
+    assertEquals(List.of(ExcuseFlavor.ALREADY_PROFICIENT), memory.usedFlavors("Dana"));
+    assertTrue(memory.usedFlavors("Different organizer").isEmpty());
+    assertTrue(memory.recallSentHistory("Dana").contains(send.message()));
+  }
+
+  @Test
   void committedFixturesSupplyReasonsAbsentFromCalendar() {
     var memory =
         new MemoryTools(

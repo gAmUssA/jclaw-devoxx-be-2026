@@ -19,6 +19,8 @@ public final class AgentRoles {
     @UserMessage(
         """
         Draft the best available decline for this current request: {{request}}
+        Verified organizer context: {{organizerContext}}
+        Adapt wording to this sensitivity; UNKNOWN means no sensitivity was supplied.
         Viktor builds AI agents for a living and presents a public conference talk
         about building agents on the afternoon of the fictional training.
         These background facts are context, not required wording or additional excuses.
@@ -38,6 +40,7 @@ public final class AgentRoles {
         """)
     DeclineDeployment draft(
         @V("request") DeclineRequest request,
+        @V("organizerContext") OrganizerContext organizerContext,
         @V("previous") String previous,
         @V("feedback") String feedback);
   }
@@ -56,6 +59,8 @@ public final class AgentRoles {
         """
         Assess the quality and plausibility of this exact decline plan.
         Typed review containing the current request and exact candidate: {{review}}
+        Verified organizer context: {{organizerContext}}
+        Assess wording against this sensitivity; UNKNOWN means no sensitivity was supplied.
         Viktor builds AI agents for a living and presents a public conference talk
         about building agents on the afternoon of the fictional training.
         These background facts are context, not required wording or additional excuses.
@@ -70,7 +75,9 @@ public final class AgentRoles {
         Decide approved and tier yourself. Explain real reasoning in feedback.
         An approval permits consideration by the human; it does not send anything.
         """)
-    DeclineCritique review(@V("review") DeclineReview review);
+    DeclineCritique review(
+        @V("review") DeclineReview review,
+        @V("organizerContext") OrganizerContext organizerContext);
   }
 
   public enum Intent {

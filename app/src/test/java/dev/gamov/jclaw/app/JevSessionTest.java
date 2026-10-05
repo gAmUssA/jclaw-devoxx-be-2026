@@ -72,6 +72,12 @@ class JevSessionTest {
       assertEquals(1, endpoint.requests.size());
       assertEquals(3, draft.requests.size());
       assertEquals(3, judge.requests.size());
+      var context = new OrganizerContext(Scenario.ORGANIZER, OrganizerSensitivity.TOUCHY);
+      for (var model : List.of(draft, judge)) {
+        assertTrue(
+            model.requests.stream()
+                .allMatch(call -> call.messages().toString().contains(context.toString())));
+      }
       assertTrue(chat.requests.isEmpty());
       var latest = display.reviews.getLast();
       assertEquals(3, latest.attempt());

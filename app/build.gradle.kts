@@ -21,7 +21,7 @@ dependencies {
 }
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(21)) } }
 sourceSets.main { resources.srcDir(rootProject.file(".shared/domain/src/main/resources")) }
-application { mainClass.set("dev.gamov.jclaw.Main") }
+application { mainClass.set("dev.gamov.jclaw.app.Main") }
 spotless {
     java {
         target("src/**/*.java")
@@ -46,7 +46,7 @@ tasks.register<Test>("reportFixture") {
     useJUnitPlatform()
     systemProperty("jclaw.root", rootProject.projectDir.absolutePath)
     systemProperty("jclaw.report.fixture.directory", rootProject.file("state/report-fixture").absolutePath)
-    filter { includeTestsMatching("dev.gamov.jclaw.WorkflowReportsTest.nativeReportsCaptureRefinementAndHumanVerdicts") }
+    filter { includeTestsMatching("dev.gamov.jclaw.agent.WorkflowReportsTest.nativeReportsCaptureRefinementAndHumanVerdicts") }
     outputs.dir(rootProject.file("state/report-fixture"))
 }
 tasks.withType<JavaCompile>().configureEach {

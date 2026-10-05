@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Organize Java classes and tests by responsibility under meaningful packages.
+  Update the launcher, logging service registration, checkpoint tooling and
+  documentation while preserving wire contracts and workflow behavior.
+
 - Generate native LangChain4j topology and execution HTML reports in round 7,
   refresh after each turn, and show paths with `/report`. Keep review-loop and
   human roots separate, omit provider exception bodies, and add a provider-free

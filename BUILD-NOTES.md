@@ -2,7 +2,7 @@
 
 Current lineup: Java 21, native Jev Identify, Gemini chat/skills, Claude Opus 5.5
 Anthropic API Draft/Refine, and GPT-6 Astra OpenAI API Judge. The complete build
-passes 67 provider-free tests. See the latest provider evidence at the end.
+passes 74 provider-free tests. See the latest verification evidence at the end.
 Earlier sections preserve historical runs; Gemini drafting/review smoke tests
 do not validate the current Claude/OpenAI lineup.
 
@@ -254,7 +254,7 @@ choice. The app invokes no Claude/Codex CLI and makes no CLI cost-equivalence cl
 Focused model/provider tests and then the complete check passed:
 
 ```bash
-./gradlew :app:spotlessApply :app:test --tests dev.gamov.jclaw.ModelProvidersTest --tests dev.gamov.jclaw.ModelLineupTest --console=plain
+./gradlew :app:spotlessApply :app:test --tests dev.gamov.jclaw.model.ModelProvidersTest --tests dev.gamov.jclaw.model.ModelLineupTest --console=plain
 ./gradlew :app:check :app:installDist :mocks:mcpJars --console=plain --offline
 app/build/install/app/bin/app --help
 ```
@@ -300,3 +300,23 @@ rendered in an isolated browser with working group/data-flow controls, no script
 errors and no external resources. The updated workshop built for local and
 production URLs; all 12 Java snippets compiled with warnings as errors, and the
 seven diagrams loaded with a scrollable Chapter 7 at 390px without page overflow.
+
+## Java packages — 2026-10-05
+
+Application sources now use responsibility packages: `app`, `agent`, `domain`,
+`model`, `tools`, `memory`, `observability`, `serialization`, and `checkpoint` under
+`dev.gamov.jclaw`. Tests mirror production packages; reusable prepared model
+responses live in the test-only `testing` package. The entry point is
+`dev.gamov.jclaw.app.Main`, and the SLF4J service descriptor names
+`dev.gamov.jclaw.observability.TraceLogProvider`.
+
+The package refactor preserves Java records, shared JSON serializers, policy,
+model roles, approval, receipts and persisted history. Cross-package entry points
+are public; local HTTP test overloads and native report helpers remain internal.
+Checkpoint tooling now projects paths under the `app` package and launches the
+source-only `checkpoint/RoundProjection.java` tool.
+
+The complete `:app:check :app:installDist :app:reportFixture --offline` run passed
+all 74 tests with zero failures/errors/skips, including native typed workflows,
+shared serializer compatibility, providers, MCP, history, logging and reports.
+Strict Java diagnostics, Spotless, ShellCheck and all shell harnesses passed.

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add public clone instructions and a link to the seven-chapter workshop manual.
+  Document how to check out the published chapter branches.
+
 - Organize Java classes and tests by responsibility under meaningful packages.
   Update the launcher, logging service registration, checkpoint tooling and
   documentation while preserving wire contracts and workflow behavior.

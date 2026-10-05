@@ -19,17 +19,17 @@ main() (
   trap 'printf "FAIL projection fixture at line %s\n" "$LINENO" >&2' ERR
   for round in {1..7}; do
     project="$fixture/$round"
-    mkdir -p "$project/app/src/main/java/dev/gamov/jclaw" "$project/app/src/test/java/dev/gamov/jclaw" "$project/state"
-    cp "$root/app/src/main/java/dev/gamov/jclaw/"{Main,DemoMode,DemoSession}.java "$project/app/src/main/java/dev/gamov/jclaw/"
-    cp "$root/app/src/test/java/dev/gamov/jclaw/"{DemoSessionTest,JevSessionTest}.java "$project/app/src/test/java/dev/gamov/jclaw/"
+    mkdir -p "$project/app/src/main/java/dev/gamov/jclaw/app" "$project/app/src/test/java/dev/gamov/jclaw/app" "$project/state"
+    cp "$root/app/src/main/java/dev/gamov/jclaw/app/"{Main,DemoMode,DemoSession}.java "$project/app/src/main/java/dev/gamov/jclaw/app/"
+    cp "$root/app/src/test/java/dev/gamov/jclaw/app/"{DemoSessionTest,JevSessionTest}.java "$project/app/src/test/java/dev/gamov/jclaw/app/"
     printf '%s\n' 'Existing confirmed history fixture' > "$project/state/sent-history.json"
-    java "$root/app/src/main/java/dev/gamov/jclaw/RoundProjection.java" "$round" "$project" 0000000000000000000000000000000000000000
+    java "$root/app/src/main/java/dev/gamov/jclaw/checkpoint/RoundProjection.java" "$round" "$project" 0000000000000000000000000000000000000000
     [[ "$(cat "$project/state/sent-history.json")" == 'Existing confirmed history fixture' ]]
-    session="$(cat "$project/app/src/main/java/dev/gamov/jclaw/DemoSession.java")"
+    session="$(cat "$project/app/src/main/java/dev/gamov/jclaw/app/DemoSession.java")"
     if ((round < 6)); then
       [[ "$session" != *'mcp.send(envelope)'* ]]
       [[ "$session" != *'workflow.humanVerdict(candidate'* ]]
-      [[ ! -e "$project/app/src/test/java/dev/gamov/jclaw/JevSessionTest.java" ]]
+      [[ ! -e "$project/app/src/test/java/dev/gamov/jclaw/app/JevSessionTest.java" ]]
     fi
     if ((round < 5)); then [[ "$session" != *'workflow.resume(run)'* ]]; fi
     if ((round < 4)); then [[ "$session" != *'tools.add(skills)'* ]]; fi
@@ -39,13 +39,13 @@ main() (
   # Invalid complete input fails before rewriting any consumer.
   project="$fixture/broken"
   cp -R "$fixture/7" "$project"
-  printf '%s\n' '// checkpoint:end unexpected' >> "$project/app/src/main/java/dev/gamov/jclaw/Main.java"
-  before="$(cat "$project/app/src/main/java/dev/gamov/jclaw/DemoMode.java")"
-  if java "$root/app/src/main/java/dev/gamov/jclaw/RoundProjection.java" 1 "$project" 0000000000000000000000000000000000000000 > "$fixture/error.txt" 2>&1; then
+  printf '%s\n' '// checkpoint:end unexpected' >> "$project/app/src/main/java/dev/gamov/jclaw/app/Main.java"
+  before="$(cat "$project/app/src/main/java/dev/gamov/jclaw/app/DemoMode.java")"
+  if java "$root/app/src/main/java/dev/gamov/jclaw/checkpoint/RoundProjection.java" 1 "$project" 0000000000000000000000000000000000000000 > "$fixture/error.txt" 2>&1; then
     printf '%s\n' 'FAIL: malformed projection input was accepted' >&2
     return 1
   fi
-  [[ "$(cat "$project/app/src/main/java/dev/gamov/jclaw/DemoMode.java")" == "$before" ]]
+  [[ "$(cat "$project/app/src/main/java/dev/gamov/jclaw/app/DemoMode.java")" == "$before" ]]
   printf '%s\n' 'PASS projection: seven removals, state preservation and malformed-input fail-before-write'
 )
 

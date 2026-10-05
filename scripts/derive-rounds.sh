@@ -56,7 +56,7 @@ main() (
     git worktree add -b "$branch" "$worktree" "$baseline"
     # Same pinned dependency snapshot, rebuilt jars, isolated application build/state.
     ln -s "$root/.shared" "$worktree/.shared"
-    java app/src/main/java/dev/gamov/jclaw/RoundProjection.java "$round" "$worktree" "$baseline"
+    java app/src/main/java/dev/gamov/jclaw/checkpoint/RoundProjection.java "$round" "$worktree" "$baseline"
     (
       cd "$worktree"
       ./gradlew :app:spotlessApply "${gradle_args[@]}" > "$root/state/round-validation/$mode-build.txt" 2>&1

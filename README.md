@@ -75,8 +75,9 @@ conference session schedule. The organizer server is a mock and contacts nobody.
 
 Append `plain` to any command. `./jclaw preview` shows labelled prepared UI fixture
 data; it makes no provider calls or sends and is not live framework evidence.
-The full application stays on `main`. All seven local branches were derived and
-validated from complete baseline `a5834c7`. Each accepts its round and earlier commands;
+The full application stays on `main`. The seven local branches were originally
+derived from baseline `a5834c7`; `.round-checkpoint` records each current baseline.
+Each accepts its round and earlier commands;
 later commands fail before provider initialization. The default is its highest
 round, except that the complete build defaults to guardrails.
 
@@ -103,6 +104,28 @@ describes retained common code and explicit test exclusions. Build/help logs go
 to ignored `state/round-validation/`. Branch checkout preserves ignored history;
 the launcher rebuilds the selected branch's distribution before running it.
 
+## Java package layout
+
+Sources live under `app/src/main/java/dev/gamov/jclaw/`; tests mirror these
+packages, with shared boundary fixtures in `dev.gamov.jclaw.testing`.
+
+| Package | Responsibility and main classes |
+|---|---|
+| `app` | Launcher and session/UI coordination: `Main`, `DemoSession`, `DemoMode`, `SessionDisplay`, `CopyCommands` |
+| `agent` | Typed AI services and orchestration: `AgentRoles`, `TurnDecider`, `JevDecider`, `GeminiDecider`, `Workflow`, `WorkflowReports` |
+| `domain` | Wire records, delivery validation and shared policy: `Contracts`, `Delivery`, `SharedPolicy` |
+| `model` | Provider clients and role configuration: `ModelProviders`, `ModelLineup` |
+| `tools` | Read-only model capabilities: `McpTools`, `MemoryTools`, `SkillCatalog` |
+| `memory` | Confirmed outcome persistence: `SentHistory` |
+| `observability` | Native callbacks and trace logging: `GraphEvents`, `TraceEvidence`, `TraceLogProvider` |
+| `serialization` | Contract JSON: `Json` |
+| `checkpoint` | Checkpoint source projection: `RoundProjection` |
+
+The executable entry point is `dev.gamov.jclaw.app.Main`. The `./jclaw` commands
+remain the same. Typed records are nested under
+`dev.gamov.jclaw.domain.Contracts`; their JSON fields and persisted schema remain
+unchanged.
+
 ## Typed workflow and model roles
 
 The [October 4 handoff](https://github.com/jbaruch/jclaw-devoxx/blob/70d1856ad32e718dc6c3594295b2eb144b132ea0/HANDOFF-LC4J.md)
@@ -126,7 +149,7 @@ subscription usage separately; matching workflow roles does not establish
 model, transport or cost equivalence with the Koog implementation.
 The human is critic two; Java owns exact-candidate delivery and receipt validation.
 
-`ModelProviders.java` fixes each transport to its workflow role. Set
+`model/ModelProviders.java` fixes each transport to its workflow role. Set
 `JCLAW_DRAFT_MODEL=claude-opus-5-5` and `JCLAW_REVIEW_MODEL=gpt-6-astra`; blank
 overrides retain those defaults. The native OpenAI client requests strict JSON
 Schema and disables response storage. Claude's adaptive thinking is not disabled;

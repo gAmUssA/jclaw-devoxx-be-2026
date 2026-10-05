@@ -57,6 +57,10 @@ public final class TraceEvidence {
     write(kind, text, node.get());
   }
 
+  public String traceId() {
+    return traceId;
+  }
+
   public synchronized void graph(Workflow.Graph graph) {
     var stack = graphStack.get();
     if (graph.phase() == Workflow.Phase.STARTED) {

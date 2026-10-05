@@ -43,6 +43,7 @@ public final class Main {
           "Ctrl+C exits the dashboard; /quit exits plain mode. Send requires a reviewed candidate and explicit 'send'.");
       System.out.println(
           "/copy copies the latest reply or candidate; /copy reply and /copy candidate select explicitly.");
+      System.out.println("In observability mode, /report shows the native HTML report paths.");
       return;
     }
     boolean preview = args.length > 0 && args[0].equals("preview");
@@ -386,12 +387,18 @@ public final class Main {
               skills,
               display);
       display.state("READY", "Ask for a plan. No send happens without reviewed human approval.");
+      var reportDirectory = root.resolve("state/reports").resolve(evidence.traceId());
+      saveReports(session, reportDirectory, evidence, display, true);
       while (true) {
         var line = dashboard == null ? input.readLine() : null;
         var turn = dashboard == null ? new Turn(line, approvalCandidate.get()) : queue.take();
         if (turn.text() == null || turn.text().trim().equals("/quit")) break;
         if (turn.text().isBlank()) continue;
         if (copy.handle(turn.text(), display::chat)) continue;
+        if (mode.round() >= 7 && turn.text().trim().equals("/report")) {
+          saveReports(session, reportDirectory, evidence, display, true);
+          continue;
+        }
         try {
           session.submit(turn.text(), turn.candidateId());
         } catch (Delivery.Refused refused) {
@@ -415,8 +422,30 @@ public final class Main {
           display.state(
               "BLOCKED",
               "Local state write failed; inspect receipt and repair directory permissions before retrying");
+        } finally {
+          saveReports(session, reportDirectory, evidence, display, false);
         }
       }
+    }
+  }
+
+  private static void saveReports(
+      DemoSession session,
+      Path directory,
+      TraceEvidence evidence,
+      SessionDisplay display,
+      boolean announce) {
+    try {
+      var files = session.writeReports(directory);
+      if (files.isEmpty()) return;
+      var paths =
+          files.stream().map(Path::toString).collect(java.util.stream.Collectors.joining("\n"));
+      evidence.event("HTML_REPORT", paths);
+      if (announce) display.reply("Native HTML reports (updated after each turn):\n" + paths);
+    } catch (IOException failure) {
+      evidence.event("REPORT_ERROR", failure.getClass().getSimpleName() + "; report write failed");
+      display.reply(
+          "HTML report write failed; check state/reports permissions. Workflow state is retained.");
     }
   }
 

@@ -55,6 +55,15 @@ and canonical assembly are application operations. Local native graph/API traces
 and human verdict nodes are implemented; hosted export and subscription CLI traces are
 absent. Prepared previews and test fixtures remain labelled.
 
+Round 7 also saves native LangChain4j reports after every turn. Enter `/report`,
+open the printed `review-loop.html` and `human-review.html` paths in a browser,
+and refresh after feedback and hold. Show the actual loop topology and execution
+waterfall, then the separate human verdict graph. A native successful invocation
+is not business approval or delivery; use the JSONL receipt/history evidence for
+those outcomes. Native scope IDs and the application trace ID are distinct.
+For a provider-free report example, run `./gradlew :app:reportFixture --offline`
+and open the two files in `state/report-fixture/`; label them as fixture data.
+
 ## Clipboard verification
 
 The native desktop clipboard access in `CopyCommands` is a platform-bound manual

@@ -38,6 +38,17 @@ tasks.test {
     dependsOn(":mocks:mcpJars")
     systemProperty("jclaw.root", rootProject.projectDir.absolutePath)
 }
+tasks.register<Test>("reportFixture") {
+    description = "Generate native HTML reports from a provider-free workflow fixture"
+    group = "verification"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform()
+    systemProperty("jclaw.root", rootProject.projectDir.absolutePath)
+    systemProperty("jclaw.report.fixture.directory", rootProject.file("state/report-fixture").absolutePath)
+    filter { includeTestsMatching("dev.gamov.jclaw.WorkflowReportsTest.nativeReportsCaptureRefinementAndHumanVerdicts") }
+    outputs.dir(rootProject.file("state/report-fixture"))
+}
 tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.addAll(listOf("-Xlint:all", "-Werror"))
 }

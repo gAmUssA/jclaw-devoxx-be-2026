@@ -63,22 +63,20 @@ conference session schedule. The organizer server is a mock and contacts nobody.
 
 ## Rounds
 
-| Command | Capability |
-|---|---|
-| `./jclaw chatbot` | Conversation with Gemini |
-| `./jclaw tools` | Read-only calendar and organizer MCP tools |
-| `./jclaw memory` | Conversation and literal durable history retrieval |
-| `./jclaw skills` | Runtime skill catalog and scoped read-only skill loading |
-| `./jclaw workflow` | Typed native agents and bounded review/refinement; no send gate |
-| `./jclaw guardrails` | Human rejection, fresh review, approval and mock delivery |
-| `./jclaw observability` | Same human workflow with actual model/tool/application traces |
+| Local branch | Command | Capability |
+|---|---|---|
+| `round/01-chatbot` | `./jclaw chatbot` | Conversation with Gemini |
+| `round/02-tools` | `./jclaw tools` | Read-only calendar and organizer MCP tools |
+| `round/03-memory` | `./jclaw memory` | Conversation and literal durable history retrieval |
+| `round/04-skills` | `./jclaw skills` | Runtime skill catalog and scoped read-only skill loading |
+| `round/05-workflow` | `./jclaw workflow` | Typed native agents and bounded review/refinement; no send gate |
+| `round/06-guardrails` | `./jclaw guardrails` | Human rejection, fresh review, approval and mock delivery |
+| `round/07-observability` | `./jclaw observability` | Same human workflow with actual model/tool/application traces |
 
 Append `plain` to any command. `./jclaw preview` shows labelled prepared UI fixture
 data; it makes no provider calls or sends and is not live framework evidence.
-The full application stays on `main`. Feature-removal checkpoint branches have
-the same ordered names: `round/01-chatbot`, `round/02-tools`, `round/03-memory`,
-`round/04-skills`, `round/05-workflow`, `round/06-guardrails` and
-`round/07-observability`. Each branch accepts its round and earlier commands;
+The full application stays on `main`. All seven local branches were derived and
+validated from complete baseline `a5834c7`. Each accepts its round and earlier commands;
 later commands fail before provider initialization. The default is its highest
 round, except that the complete build defaults to guardrails.
 
@@ -89,6 +87,11 @@ git config core.hooksPath .githooks
 bash scripts/derive-rounds.sh
 # Use --offline only after the pinned dependencies have been downloaded.
 ```
+
+The current local branches already exist; use `git switch round/01-chatbot`
+and its matching launcher command for rehearsal. The derivation command is for
+a clean clone without those names, or a deliberate new baseline after preserving
+older checkpoints under other names.
 
 Derivation requires [gitleaks 8.30.1](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1)
 and Git (verified 2.55.0). It validates main, removes later mode entries and
@@ -222,6 +225,29 @@ request assembly are application operations; Human verdicts are native graph
 nodes, and send/history carry separate application evidence. MCP stderr appears in the tool
 trace. No hosted telemetry export or subscription CLI transport is currently
 implemented. API usage and any future CLI usage must be disclosed separately.
+
+In `./jclaw observability`, native `AgentMonitor` listeners also produce
+LangChain4j HTML reports after every turn. Enter `/report` to show the paths:
+`state/reports/<traceId>/review-loop.html` and `human-review.html`. Open either
+file in a browser and refresh after feedback or hold. Separate monitors preserve
+the actual topology of each native root; the review report shows Draft/Judge
+iterations, and the human report shows submitted verdicts. Native scope/session
+IDs differ from the application's trace ID. A native "success" means an agent
+invocation completed, not that a candidate was approved or a message delivered.
+Jev Identify, ordinary chat, MCP reads, delivery and history remain in JSONL/TUI
+evidence, outside these two native graphs. The reports contain typed inputs and
+outputs; raw provider exception bodies are omitted.
+
+To generate a clearly labelled example without keys or live providers:
+
+```bash
+./gradlew :app:reportFixture --offline
+open state/report-fixture/review-loop.html
+open state/report-fixture/human-review.html
+```
+
+This fixture executes the real native workflow with prepared model responses,
+Judge rejection, human feedback and hold. It sends nothing and writes no history.
 
 See [BUILD-NOTES.md](BUILD-NOTES.md) for measured verification and
 [RUNBOOK.md](RUNBOOK.md) for rehearsal. The authoritative comparison contract is

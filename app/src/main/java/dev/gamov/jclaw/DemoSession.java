@@ -8,7 +8,9 @@ import dev.langchain4j.exception.LangChain4jException;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
+import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,6 +133,10 @@ public final class DemoSession {
     gate.hold();
     pending = null;
     run = null;
+  }
+
+  public List<Path> writeReports(Path directory) throws IOException {
+    return mode.round() >= 7 ? workflow.writeReports(directory) : List.of();
   }
 
   public void submit(String instruction) {

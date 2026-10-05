@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Generate native LangChain4j topology and execution HTML reports in round 7,
+  refresh after each turn, and show paths with `/report`. Keep review-loop and
+  human roots separate, omit provider exception bodies, and add a provider-free
+  report fixture task.
+
 - Clarify that Java reports avoided reasons separately and Judge reviews the
   typed candidate. Instruct Draft/Refine to remove rejected claims and avoid
   substantive excuse reuse, invented scheduling facts and unnecessary extra reasons.
@@ -39,8 +44,8 @@
 
 - Bootstrap the LangChain4j counterpart using pinned shared Devoxx contracts.
 - Add bounded review, approval, receipt validation and confirmed-send persistence.
-- Keep identification, drafting/refinement and review on separately configured
-  Gemini generation models pending the final lineup decision. Pass the typed `DeclineReview`
+- Keep Gemini chat, drafting/refinement and review separately configurable
+  pending the final lineup decision; native Jev handles Identify. Pass the typed `DeclineReview`
   to the critic and block invalid or unavailable review before human approval.
 - Add scoped runtime skill discovery and contract tests.
 - Record the shared-source dependency decision in ADR 0001.

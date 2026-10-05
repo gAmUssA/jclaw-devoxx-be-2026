@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Read persisted excuse types from confirmed sent records, so literal message
+  text cannot invent additional used reasons.
+
 - Default every derived checkpoint to its own round, including observability
   on round 7; keep the complete main build's guardrails default.
 

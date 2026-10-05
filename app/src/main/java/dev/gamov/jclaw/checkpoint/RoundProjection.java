@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -48,17 +49,34 @@ public final class RoundProjection {
                 "reviewedCandidate",
                 "humanPrompt",
                 "send")));
+    var deletions =
+        round < 6
+            ? List.of(
+                root.resolve("app/src/test/java/dev/gamov/jclaw/app/DemoSessionTest.java"),
+                root.resolve("app/src/test/java/dev/gamov/jclaw/app/JevSessionTest.java"))
+            : List.<Path>of();
+    for (var target : deletions) {
+      if (!Files.isRegularFile(target))
+        throw new IllegalArgumentException(
+            "Missing complete-baseline test: "
+                + target
+                + "; restore the complete source tree before projecting");
+    }
     // Validate every input before mutating any file. Runtime state is never read or written.
     for (var file : files.entrySet()) Files.writeString(file.getKey(), file.getValue());
-    if (round < 6) {
-      Files.delete(root.resolve("app/src/test/java/dev/gamov/jclaw/app/DemoSessionTest.java"));
-      Files.delete(root.resolve("app/src/test/java/dev/gamov/jclaw/app/JevSessionTest.java"));
-    }
+    for (var target : deletions) Files.delete(target);
     Files.writeString(
         root.resolve(".round-checkpoint"), "baseline=" + args[2] + "\nround=" + round + "\n");
   }
 
   private static String modes(String source, int round) {
+    String defaultDeclaration = "private static final int DEFAULT_ROUND = 6;";
+    if (source.indexOf(defaultDeclaration) < 0
+        || source.indexOf(defaultDeclaration) != source.lastIndexOf(defaultDeclaration))
+      throw new IllegalArgumentException("Projection requires one complete-build default");
+    source =
+        source.replace(
+            defaultDeclaration, "private static final int DEFAULT_ROUND = " + round + ";");
     var result = new StringBuilder();
     var seen = new HashSet<Integer>();
     for (var line : source.lines().toList()) {

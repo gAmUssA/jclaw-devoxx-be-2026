@@ -11,6 +11,9 @@ API calls may incur charges. This build uses API transports, while the Koog
 reference uses Claude/Codex subscription CLIs. Provider-free tests and the
 labelled UI preview require no credentials.
 
+Follow the [seven-chapter workshop manual](https://gamov.io/workshops/codepocalypse-langchain4j/)
+for sample prompts, interaction diagrams, exercises and expected results.
+
 ## Start and stop
 
 Prerequisites: [JDK 21](https://adoptium.net/temurin/releases/?version=21),
@@ -23,6 +26,8 @@ The committed wrapper downloads Gradle 9.6.0. Initial setup needs internet acces
 The launcher downloads the pinned shared source and builds both mock jars.
 
 ```bash
+git clone https://github.com/gamussa/jclaw-devoxx-be-2026.git
+cd jclaw-devoxx-be-2026
 cp .env.example .env
 # Set GOOGLE_API_KEY, TYPESAFE_API_KEY, ANTHROPIC_API_KEY and OPENAI_API_KEY in .env.
 # JEV_API_KEY and GOOGLE_AI_API_KEY are accepted shell aliases.
@@ -63,7 +68,7 @@ conference session schedule. The organizer server is a mock and contacts nobody.
 
 ## Rounds
 
-| Local branch | Command | Capability |
+| Published branch | Command | Capability |
 |---|---|---|
 | `round/01-chatbot` | `./jclaw chatbot` | Conversation with Gemini |
 | `round/02-tools` | `./jclaw tools` | Read-only calendar and organizer MCP tools |
@@ -75,8 +80,8 @@ conference session schedule. The organizer server is a mock and contacts nobody.
 
 Append `plain` to any command. `./jclaw preview` shows labelled prepared UI fixture
 data; it makes no provider calls or sends and is not live framework evidence.
-The full application stays on `main`. The seven local branches were originally
-derived from baseline `a5834c7`; `.round-checkpoint` records each current baseline.
+The full application stays on `main`. All seven checkpoint branches are available
+on GitHub; `.round-checkpoint` records each checkpoint's complete baseline.
 Each accepts its round and earlier commands;
 later commands fail before provider initialization. The default is its highest
 round, except that the complete build defaults to guardrails.
@@ -89,10 +94,10 @@ bash scripts/derive-rounds.sh
 # Use --offline only after the pinned dependencies have been downloaded.
 ```
 
-The current local branches already exist; use `git switch round/01-chatbot`
-and its matching launcher command for rehearsal. The derivation command is for
-a clean clone without those names, or a deliberate new baseline after preserving
-older checkpoints under other names.
+After cloning, use `git switch round/01-chatbot` and its matching launcher command
+for rehearsal. Git creates a local branch from the published remote checkpoint.
+The derivation command is for deliberately creating new local checkpoints from
+a validated baseline; preserve older local checkpoints under other names first.
 
 Derivation requires [gitleaks 8.30.1](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1)
 and Git (verified 2.55.0). It validates main, removes later mode entries and

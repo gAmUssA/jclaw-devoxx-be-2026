@@ -24,6 +24,15 @@ public final class MemoryTools {
     this.trace = trace;
   }
 
+  private List<String> priorFor(String organizerName) {
+    return prior().stream()
+        .filter(
+            text ->
+                text.toLowerCase(java.util.Locale.ROOT)
+                    .contains(organizerName.toLowerCase(java.util.Locale.ROOT)))
+        .toList();
+  }
+
   private List<String> prior() {
     try (var paths = Files.list(documents)) {
       return paths
@@ -50,14 +59,7 @@ public final class MemoryTools {
           String organizerName) {
     requireText(organizerName, "organizerName");
     trace.accept("MEMORY_READ organizer=" + organizerName);
-    var stories =
-        new ArrayList<>(
-            prior().stream()
-                .filter(
-                    text ->
-                        text.toLowerCase(java.util.Locale.ROOT)
-                            .contains(organizerName.toLowerCase(java.util.Locale.ROOT)))
-                .toList());
+    var stories = new ArrayList<>(priorFor(organizerName));
     history.read().stream()
         .filter(record -> record.organizerName().equals(organizerName))
         .forEach(
@@ -76,9 +78,19 @@ public final class MemoryTools {
   }
 
   public List<ExcuseFlavor> usedFlavors(String organizerName) {
-    var stories = recallSentHistory(organizerName);
+    requireText(organizerName, "organizerName");
+    trace.accept("MEMORY_READ organizer=" + organizerName);
+    var stories = String.join("\n", priorFor(organizerName));
+    var persisted =
+        history.read().stream()
+            .filter(record -> record.organizerName().equals(organizerName))
+            .map(SentHistory.SentRecord::flavor)
+            .toList();
     return java.util.Arrays.stream(ExcuseFlavor.values())
-        .filter(flavor -> stories.contains("Excuse flavor used: " + flavor.name() + "."))
+        .filter(
+            flavor ->
+                persisted.contains(flavor)
+                    || stories.contains("Excuse flavor used: " + flavor.name() + "."))
         .toList();
   }
 }

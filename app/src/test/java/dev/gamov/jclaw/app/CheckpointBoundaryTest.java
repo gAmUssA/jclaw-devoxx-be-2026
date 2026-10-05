@@ -12,6 +12,7 @@ import dev.gamov.jclaw.testing.JevFixtures;
 import dev.gamov.jclaw.tools.McpTools;
 import dev.gamov.jclaw.tools.MemoryTools;
 import dev.gamov.jclaw.tools.SkillCatalog;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,8 @@ class CheckpointBoundaryTest {
       assertThrows(
           IllegalArgumentException.class, () -> Main.main(new String[] {command, "plain"}));
     }
-    assertEquals(Math.min(maximum(), 6), DemoMode.defaultMode().round());
+    boolean checkpoint = Files.isRegularFile(ROOT.resolve(".round-checkpoint"));
+    assertEquals(checkpoint ? maximum() : 6, DemoMode.defaultMode().round());
   }
 
   @Test

@@ -5,6 +5,7 @@ import java.util.Arrays;
 public enum DemoMode {
   CHATBOT(1),
   TOOLS(2);
+  private static final int DEFAULT_ROUND = 2;
   private final int round;
 
   DemoMode(int round) {
@@ -30,7 +31,7 @@ public enum DemoMode {
 
   public static DemoMode defaultMode() {
     return Arrays.stream(values())
-        .filter(mode -> mode.round == 6)
+        .filter(mode -> mode.round == DEFAULT_ROUND)
         .findFirst()
         .orElse(values()[values().length - 1]);
   }

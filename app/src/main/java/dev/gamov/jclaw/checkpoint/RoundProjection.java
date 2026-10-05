@@ -59,6 +59,13 @@ public final class RoundProjection {
   }
 
   private static String modes(String source, int round) {
+    String defaultDeclaration = "private static final int DEFAULT_ROUND = 6;";
+    if (source.indexOf(defaultDeclaration) < 0
+        || source.indexOf(defaultDeclaration) != source.lastIndexOf(defaultDeclaration))
+      throw new IllegalArgumentException("Projection requires one complete-build default");
+    source =
+        source.replace(
+            defaultDeclaration, "private static final int DEFAULT_ROUND = " + round + ";");
     var result = new StringBuilder();
     var seen = new HashSet<Integer>();
     for (var line : source.lines().toList()) {

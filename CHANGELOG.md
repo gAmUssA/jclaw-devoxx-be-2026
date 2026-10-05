@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Default every derived checkpoint to its own round, including observability
+  on round 7; keep the complete main build's guardrails default.
+
 - Add public clone instructions and a link to the seven-chapter workshop manual.
   Document how to check out the published chapter branches.
 

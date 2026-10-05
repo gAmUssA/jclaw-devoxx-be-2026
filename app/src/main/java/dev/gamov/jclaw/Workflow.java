@@ -7,6 +7,9 @@ import dev.langchain4j.agentic.UntypedAgent;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.exception.LangChain4jException;
 import dev.langchain4j.model.chat.ChatModel;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -80,6 +83,7 @@ public final class Workflow {
   private final Consumer<Event> events;
   private final UntypedAgent loop;
   private final UntypedAgent human;
+  private final WorkflowReports reports = new WorkflowReports();
 
   public Workflow(ChatModel draftModel, ChatModel reviewModel, Consumer<Event> events) {
     this.events = events;
@@ -195,6 +199,7 @@ public final class Workflow {
             .exitCondition(scope -> run(scope).result != null)
             .output(scope -> run(scope).result)
             .listener(new GraphEvents(events))
+            .listener(reports.review())
             .build();
     var humanNode =
         AgenticServices.humanInTheLoopBuilder()
@@ -208,11 +213,16 @@ public final class Workflow {
             .subAgents(humanNode)
             .outputKey("humanVerdict")
             .listener(new GraphEvents(events))
+            .listener(reports.human())
             .build();
   }
 
   private static Run run(AgenticScope scope) {
     return (Run) scope.readState("run");
+  }
+
+  public List<Path> writeReports(Path directory) throws IOException {
+    return reports.write(directory);
   }
 
   private static Blocked exhausted(String feedback) {

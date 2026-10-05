@@ -52,6 +52,26 @@ class RoundBoundaryTest {
   }
 
   @Test
+  void nativeHtmlReportsStartInRoundSevenWithoutCallingProviders() throws IOException {
+    for (var mode : DemoMode.values()) {
+      var model = new ModelEndpoint("Unused prepared response");
+      var directory = state.resolve(mode.name());
+      try (var mcp = new McpTools(state, "success", text -> fail("Unexpected MCP call"))) {
+        var files = session(mode, model, mcp, skills()).writeReports(directory);
+        if (mode.round() < 7) {
+          assertTrue(files.isEmpty());
+          assertFalse(Files.exists(directory));
+        } else {
+          assertEquals(2, files.size());
+          assertTrue(Files.readString(files.getFirst()).contains("No executions recorded."));
+          assertTrue(Files.readString(files.getLast()).contains("humanReview"));
+        }
+        assertTrue(model.requests.isEmpty());
+      }
+    }
+  }
+
+  @Test
   void conversationMemoryStartsInRoundThreeAndResetsOnRestart() {
     for (var mode :
         java.util.Arrays.stream(DemoMode.values()).filter(value -> value.round() <= 3).toList()) {

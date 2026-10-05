@@ -226,6 +226,29 @@ nodes, and send/history carry separate application evidence. MCP stderr appears 
 trace. No hosted telemetry export or subscription CLI transport is currently
 implemented. API usage and any future CLI usage must be disclosed separately.
 
+In `./jclaw observability`, native `AgentMonitor` listeners also produce
+LangChain4j HTML reports after every turn. Enter `/report` to show the paths:
+`state/reports/<traceId>/review-loop.html` and `human-review.html`. Open either
+file in a browser and refresh after feedback or hold. Separate monitors preserve
+the actual topology of each native root; the review report shows Draft/Judge
+iterations, and the human report shows submitted verdicts. Native scope/session
+IDs differ from the application's trace ID. A native "success" means an agent
+invocation completed, not that a candidate was approved or a message delivered.
+Jev Identify, ordinary chat, MCP reads, delivery and history remain in JSONL/TUI
+evidence, outside these two native graphs. The reports contain typed inputs and
+outputs; raw provider exception bodies are omitted.
+
+To generate a clearly labelled example without keys or live providers:
+
+```bash
+./gradlew :app:reportFixture --offline
+open state/report-fixture/review-loop.html
+open state/report-fixture/human-review.html
+```
+
+This fixture executes the real native workflow with prepared model responses,
+Judge rejection, human feedback and hold. It sends nothing and writes no history.
+
 See [BUILD-NOTES.md](BUILD-NOTES.md) for measured verification and
 [RUNBOOK.md](RUNBOOK.md) for rehearsal. The authoritative comparison contract is
 [HANDOFF-LC4J.md](https://github.com/jbaruch/jclaw-devoxx/blob/70d1856ad32e718dc6c3594295b2eb144b132ea0/HANDOFF-LC4J.md).

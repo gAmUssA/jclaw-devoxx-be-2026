@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Generate native LangChain4j topology and execution HTML reports in round 7,
+  refresh after each turn, and show paths with `/report`. Keep review-loop and
+  human roots separate, omit provider exception bodies, and add a provider-free
+  report fixture task.
+
 - Clarify that Java reports avoided reasons separately and Judge reviews the
   typed candidate. Instruct Draft/Refine to remove rejected claims and avoid
   substantive excuse reuse, invented scheduling facts and unnecessary extra reasons.

@@ -273,3 +273,30 @@ Early rounds initialize only Gemini; missing workflow keys give safe remedies.
 
 These are provider-free boundary tests. Live Claude/OpenAI calls have not run;
 access to the selected models and live latency require the user's API keys.
+
+## Native HTML reports — 2026-10-05
+
+The existing Agentic beta31 module supplies `AgentMonitor` and
+`HtmlReportGenerator`; no dependency or transport was added. Separate monitors
+on the review loop and human sequence preserve both topologies alongside the
+existing native callback evidence. Observability mode writes session-scoped
+reports after each turn, and `/report` shows their paths. Report I/O failure
+leaves workflow approval state intact. Raw provider exception bodies are omitted
+from native report failures, matching the trace's error-disclosure policy.
+
+The real native runtime ran against prepared paid-network boundary responses:
+Judge rejection, refinement/approval, human feedback, fresh review and hold.
+Report tests verify both topologies, execution history, escaped model text,
+sanitized provider failure and approval remaining valid after report-write failure.
+The separate `:app:reportFixture` task generates ignored local example reports
+without keys, model traffic, delivery or history writes. These examples are not
+reports of the earlier live rehearsal, whose native monitors were not attached.
+
+Validation: `:app:check :app:installDist` passed with 74 tests, zero failures,
+errors or skips; strict Java diagnostics, Spotless and the shell harnesses passed.
+An installed-app `/report` smoke check used dummy keys and produced only provider
+labels, ready state and report events, with no model requests. Both native reports
+rendered in an isolated browser with working group/data-flow controls, no script
+errors and no external resources. The updated workshop built for local and
+production URLs; all 12 Java snippets compiled with warnings as errors, and the
+seven diagrams loaded with a scrollable Chapter 7 at 390px without page overflow.
